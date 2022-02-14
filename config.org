@@ -32,12 +32,15 @@
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
-(menu-bar-mode -1)            ; Disable the menu bar
+(menu-bar-mode -1)          ; Disable the menu bar
 (blink-cursor-mode -1)
 (display-time-mode 1)
 (fset 'yes-or-no-p 'y-or-n-p)
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
+#+END_SRC
+** Auto-reload files
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode 1)
 #+END_SRC
 ** Font settings
 #+BEGIN_SRC emacs-lisp
@@ -45,17 +48,90 @@
 (set-face-attribute 'default nil :font "Fira Code Retina" :height runemacs/default-font-size)
 ;;(set-face-attribute 'default nil :font "JetBrains Mono" :height runemacs/default-font-size)
 #+END_SRC
-** Setting initial frame size ans position
+** Theme
 #+BEGIN_SRC emacs-lisp
-;; Set initial frame size and position
-(defun my/set-initial-frame ()
-  (let* ((base-factor 0.70)
-	(a-width (* (display-pixel-width) base-factor))
-       (a-height (* (display-pixel-height) base-factor))
-        (a-left (truncate (/ (- (display-pixel-width) a-width) 2)))
-	(a-top (truncate (/ (- (display-pixel-height) a-height) 2))))
-    (set-frame-position (selected-frame) a-left a-top)
-    (set-frame-size (selected-frame) (truncate a-width)  (truncate a-height) t)))
-(setq frame-resize-pixelwise t)
-(my/set-initial-frame)
+;; theme / layout / font
+(use-package spacemacs-common
+    :ensure spacemacs-theme
+    :config (load-theme 'spacemacs-dark t))
 #END_SRC
+* Configure Packages
+** Evil mode
+#+BEGIN_SRC emacs-lisp
+;; evil mode
+(setq evil-want-keybinding nil)
+(use-package evil
+  :ensure t
+  :init
+  ;; have no modes shadow evil maps this has to be before evil gets initialized
+  (advice-add 'evil-make-overriding-map :override #'ignore)
+  (setq evil-intercept-maps nil)
+
+  ;; visual line mode respect has to be set before
+  (setq evil-respect-visual-line-mode t)
+  (setq evil-want-C-u-scroll t)
+
+  ;; enable evil
+  (evil-mode 1)
+
+  ;; custom keybindings
+  (setq my-leader (kbd "SPC"))
+  (define-key evil-motion-state-map my-leader nil)
+  (defvar my-leader-map (make-sparse-keymap) "Keymap for 'leader key' shortcuts.")
+  (evil-define-key 'normal (current-global-map) my-leader my-leader-map)
+  (evil-define-key 'mortion (current-global-map) my-leader my-leader-map)
+)
+#END_SRC
+** Org mode
+#BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure t
+  :defer t
+  :config
+  (define-key org-mode-map
+	(kbd "RET") 'org-return-indent)
+  ;; org-mode keybindings
+  (evil-define-key 'normal org-mode-map
+	(kbd "TAB") 'org-cycle
+	(concat my-leader "c") 'org-ctrl-c-ctrl-c
+	(concat my-leader "t") 'org-todo
+	(concat my-leader "oa") '(lambda () (interactive) (org-agenda-file-to-front) (org-agenda))
+	(concat my-leader "oA") 'org-archive-to-archive-sibling
+	(concat my-leader "on") 'org-narrow-to-subtree
+	(concat my-leader "ow") 'widen
+	(concat my-leader "ot") 'org-time-stamp
+	"gx" 'org-open-at-point)
+  ;; add plantuml mode
+  (add-to-list
+   'org-src-lang-modes '("plantuml" . plantuml))
+
+  ;; org-mode bindings that should work in visual mode
+  (evil-define-key 'motion org-mode-map
+    (concat my-leader "ol") 'org-insert-link
+    (concat my-leader "os") 'org-store-link)
+  ;; org agenda keybindings
+  (evil-define-key 'normal org-agenda-mode-map
+	(concat my-leader "t") 'org-agenda-todo
+	(concat my-leader "r") 'org-agenda-redo
+	(concat my-leader "oA") 'org-agenda-archive-to-archive-sibling)
+    
+  ;;settings
+  (add-hook 'org-mode-hook 'auto-fill-mode)
+  (add-hook 'org-mode-hook (lambda () (interactive)
+								  (setq indent-tabs-mode nil)))
+  (setq org-hide-leading-stars t
+		org-tags-column 0
+		org-agenda-tags-column 0
+		org-archive-reversed-order t
+		org-ellipsis " …")
+  ;; truncate and wrap chars; org only makes display table on load when ellipsis is set, but that's
+  ;; too late for adding custom glyphs, so make it ourselves
+  (unless org-display-table
+	(setq org-display-table (make-display-table)))
+  (set-display-table-slot org-display-table 'truncation ?…)
+  (set-display-table-slot org-display-table 'wrap ?…)
+
+  ;; prevent org mode from repositioning the screen after (un)folding
+  (remove-hook 'org-cycle-hook
+			   #'org-optimize-window-after-visibility-change))
+#+END_SRC
