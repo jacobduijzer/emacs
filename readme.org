@@ -11,29 +11,35 @@
 (package-initialize)
 #+END_SRC 
 
-** Setup =use-package= 
+** Setup use-package 
 #+BEGIN_SRC emacs-lisp
 (unless (fboundp 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 #+END_SRC
-* General Emacs Setup, Layout & Theming
-** emacs general setup
+** Custom file
 #+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-message t)
-(setq visible-bell nil
-        ring-bell-function (lambda ()))
-(setq org-startup-with-inline-images t)
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
-(menu-bar-mode -1)          ; Disable the menu bar
-(blink-cursor-mode -1)
-(display-time-mode 1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+    (load custom-file))
+#+END_SRC
+* General Emacs Setup, Layout & Theming
+** General Emacs settings
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-screen t)
+  (setq inhibit-startup-message t)
+  (setq visible-bell nil
+          ring-bell-function (lambda ())) ; Just be quite, Emacs!
+  (setq org-startup-with-inline-images t)
+  (scroll-bar-mode -1)        ; Disable visible scrollbar
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (tooltip-mode -1)           ; Disable tooltips
+  (set-fringe-mode 10)        ; Give some breathing room
+  (menu-bar-mode -1)          ; Disable the menu bar
+  (blink-cursor-mode -1)
+  (display-time-mode 1)
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
 #+END_SRC
 ** Auto-reload files
 #+BEGIN_SRC emacs-lisp
@@ -132,3 +138,4 @@
   (remove-hook 'org-cycle-hook
 			   #'org-optimize-window-after-visibility-change))
 #+END_SRC
+

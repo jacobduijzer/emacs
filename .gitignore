@@ -48,4 +48,5 @@ flycheck_*.el
 /network-security.data
 
 # auto-generated .el
+custom.el
 readme.el
