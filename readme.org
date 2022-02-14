@@ -11,14 +11,11 @@
 (package-initialize)
 #+END_SRC 
 
-** Setup =use-package= if isn't already
+** Setup =use-package= 
 #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'use-package)
+(unless (fboundp 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
 #+END_SRC
 * General Emacs Setup, Layout & Theming
 ** emacs general setup
