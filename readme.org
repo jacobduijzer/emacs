@@ -51,7 +51,7 @@
 (use-package spacemacs-common
     :ensure spacemacs-theme
     :config (load-theme 'spacemacs-dark t))
-#END_SRC
+#+END_SRC
 * Configure Packages
 ** Evil mode
 #+BEGIN_SRC emacs-lisp
@@ -78,9 +78,9 @@
   (evil-define-key 'normal (current-global-map) my-leader my-leader-map)
   (evil-define-key 'mortion (current-global-map) my-leader my-leader-map)
 )
-#END_SRC
+#+END_SRC
 ** Org mode
-#BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp
 (use-package org
   :ensure t
   :defer t
