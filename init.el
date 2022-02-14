@@ -1,4 +1,4 @@
-(org-babel-load-file "~/.emacs.d/config.org")
+(org-babel-load-file "~/.emacs.d/readme.org")
 ;; Set initial frame size and position
 (defun my/set-initial-frame ()
   (let* ((base-factor 0.70)
