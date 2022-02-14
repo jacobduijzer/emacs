@@ -100,7 +100,7 @@
 )
 #+END_SRC
 ** Ivy
-#+BEGIN_SRC
+#+BEGIN_SRC emacs-lisp
 (use-package ivy :demand
   :ensure t
   :init
@@ -194,4 +194,18 @@
                "* MEETING %? %U\n  With: \n" :empty-lines 1)
 	      ))) 
 #+END_SRC
-** Org Refile
+** Blogging with Hugo
+#+BEGIN_SRC emacs-lisp
+;; Github Flavored Markdown exporter for Org Mode
+(use-package ox-gfm
+:ensure t
+:after org
+:config
+(eval-after-load "org"
+    '(require 'ox-gfm nil t))
+)
+
+(use-package ox-hugo
+  :ensure t
+  :after ox)
+#+END_SRC
