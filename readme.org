@@ -58,6 +58,20 @@
     :ensure spacemacs-theme
     :config (load-theme 'spacemacs-dark t))
 #+END_SRC
+** Line numbering
+#+BEGIN_SRC emacs-lisp
+(defun cc/toggle-line-numbering ()
+  "Toggle line numbering between absolute and relative."
+  (interactive)
+  (if (eq display-line-numbers 'relative)
+      (setq display-line-numbers t)
+    (setq display-line-numbers 'relative)))
+;; toggle line numbers
+(global-set-key (kbd "C-c C-l") 'display-line-numbers-mode)
+;; toggle normal vs relative line numbers
+(global-set-key (kbd "C-c l") 'cc/toggle-line-numbering)
+#+END_SRC
+
 * Configure Packages
 ** Evil mode
 #+BEGIN_SRC emacs-lisp
@@ -84,6 +98,22 @@
   (evil-define-key 'normal (current-global-map) my-leader my-leader-map)
   (evil-define-key 'mortion (current-global-map) my-leader my-leader-map)
 )
+#+END_SRC
+** Ivy
+#+BEGIN_SRC
+(use-package ivy :demand
+  :ensure t
+  :init
+  (ivy-mode 1)
+  :diminish ivy-mode
+
+  :config
+  (setq ivy-use-virtual-buffers t
+		ivy-display-style 'plain
+		ivy-count-format "%d/%d ")
+  ;;bindings
+  (define-key my-leader-map "b" 'ivy-switch-buffer)
+  )
 #+END_SRC
 ** Org mode
 #+BEGIN_SRC emacs-lisp
@@ -138,4 +168,30 @@
   (remove-hook 'org-cycle-hook
 			   #'org-optimize-window-after-visibility-change))
 #+END_SRC
+** Capture & Refile
+#+BEGIN_SRC emacs-lisp
+(setq org-default-notes-file "~/Documents/Org/inbox.org")
+(setq org-reverse-note-order nil)
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes (quote confirm))
+(setq org-blank-before-new-entry nil)
+(setq org-refile-use-cache nil)
+(setq org-refile-targets '((("~/Documents/Org/inbox.org"
+                             "~/Documents/Org/personal.org"
+                             "~/Documents/Org/farmtrace.org"
+                             "~/Documents/Org/itcare.org"
+                             "~/Documents/Org/rockstars.org") . (:maxlevel . 5))))
 
+(global-set-key (kbd "C-c c") 'org-capture)
+
+(setq org-capture-templates
+      (quote (("t" "Todo" entry (file+datetree org-default-notes-file)
+	       "* TODO %? %U" :empty-lines 1) 
+              ("n" "Note" entry (file+datetree org-default-notes-file)
+	       "* NOTE %? %U" :empty-lines 1)
+	      ("m" "Meeting" entry (file+datetree org-default-notes-file)
+               "* MEETING %? %U\n  With: \n" :empty-lines 1)
+	      ))) 
+#+END_SRC
+** Org Refile
