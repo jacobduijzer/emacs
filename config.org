@@ -1,0 +1,61 @@
+#+TITLE: My Emacs Configuration
+#+AUTHOR: Jacob Duijzer
+
+* Repositories and Packages
+** Repositories
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+(package-initialize)
+#+END_SRC 
+
+** Setup =use-package= if isn't already
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+#+END_SRC
+* General Emacs Setup, Layout & Theming
+** emacs general setup
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq visible-bell nil
+        ring-bell-function (lambda ()))
+(setq org-startup-with-inline-images t)
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+(menu-bar-mode -1)            ; Disable the menu bar
+(blink-cursor-mode -1)
+(display-time-mode 1)
+(fset 'yes-or-no-p 'y-or-n-p)
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+END_SRC
+** Font settings
+#+BEGIN_SRC emacs-lisp
+(defvar runemacs/default-font-size 80)
+(set-face-attribute 'default nil :font "Fira Code Retina" :height runemacs/default-font-size)
+;;(set-face-attribute 'default nil :font "JetBrains Mono" :height runemacs/default-font-size)
+#+END_SRC
+** Setting initial frame size ans position
+#+BEGIN_SRC emacs-lisp
+;; Set initial frame size and position
+(defun my/set-initial-frame ()
+  (let* ((base-factor 0.70)
+	(a-width (* (display-pixel-width) base-factor))
+       (a-height (* (display-pixel-height) base-factor))
+        (a-left (truncate (/ (- (display-pixel-width) a-width) 2)))
+	(a-top (truncate (/ (- (display-pixel-height) a-height) 2))))
+    (set-frame-position (selected-frame) a-left a-top)
+    (set-frame-size (selected-frame) (truncate a-width)  (truncate a-height) t)))
+(setq frame-resize-pixelwise t)
+(my/set-initial-frame)
+#END_SRC
