@@ -3,44 +3,59 @@
 
 * Repositories and Packages
 ** Repositories
+
 #+BEGIN_SRC emacs-lisp
 (require 'package)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 #+END_SRC 
 
 ** Setup use-package 
+
 #+BEGIN_SRC emacs-lisp
 (unless (fboundp 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 #+END_SRC
 ** Custom file
+
 #+BEGIN_SRC emacs-lisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
     (load custom-file))
 #+END_SRC
+
+
 * General Emacs Setup, Layout & Theming
 ** General Emacs settings
+
 #+BEGIN_SRC emacs-lisp
-  (setq inhibit-startup-screen t)
-  (setq inhibit-startup-message t)
-  (setq visible-bell nil
-          ring-bell-function (lambda ())) ; Just be quite, Emacs!
-  (setq org-startup-with-inline-images t)
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (tooltip-mode -1)           ; Disable tooltips
-  (set-fringe-mode 10)        ; Give some breathing room
-  (menu-bar-mode -1)          ; Disable the menu bar
-  (blink-cursor-mode -1)
-  (display-time-mode 1)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq visible-bell nil
+	ring-bell-function (lambda ())) ; Just be quite, Emacs!
+(setq org-startup-with-inline-images t)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+(menu-bar-mode -1)          ; Disable the menu bar
+(blink-cursor-mode -1)
+(display-time-mode 1)
+(fset 'yes-or-no-p 'y-or-n-p)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
 #+END_SRC
+** All the icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons
+    :ensure t)
+#+END_SRC
+
 ** Auto-reload files
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode 1)
@@ -48,8 +63,9 @@
 ** Font settings
 #+BEGIN_SRC emacs-lisp
 (defvar runemacs/default-font-size 80)
-(set-face-attribute 'default nil :font "Fira Code Retina" :height runemacs/default-font-size)
-;;(set-face-attribute 'default nil :font "JetBrains Mono" :height runemacs/default-font-size)
+;; (set-face-attribute 'default nil :font "Iosevka Aile" :height runemacs/default-font-size)
+;;(set-face-attribute 'default nil :font "Fira Code Retina" :height runemacs/default-font-size)
+(set-face-attribute 'default nil :font "JetBrains Mono" :height runemacs/default-font-size)
 #+END_SRC
 ** Theme
 #+BEGIN_SRC emacs-lisp
@@ -58,6 +74,164 @@
     :ensure spacemacs-theme
     :config (load-theme 'spacemacs-dark t))
 #+END_SRC
+** Emojis in buffer
+
+#+BEGIN_SRC emacs-lisp
+(use-package emojify
+  :hook (erc-mode . emojify-mode)
+  :commands emojify-mode)
+#+END_SRC
+
+
+* Mode Line
+** Basic customization
+
+#+BEGIN_SRC emacs-lisp
+(setq display-time-format "%l:%M %p %b %y"
+      display-time-default-load-average nil)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package diminish)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package telephone-line
+  :ensure t
+  :config
+  (setq 
+	telephone-line-evil-use-short-tag nil)
+  (setq telephone-line-lhs
+	'((evil   . (telephone-line-evil-tag-segment))
+	  (accent . (telephone-line-vc-segment
+		     telephone-line-erc-modified-channels-segment
+		     telephone-line-process-segment))
+	  (nil    . (telephone-line-minor-mode-segment
+		     telephone-line-buffer-segment))))
+  (setq telephone-line-rhs
+	'((nil    . (telephone-line-misc-info-segment))
+	  (accent . (telephone-line-major-mode-segment))
+	  (evil   . (telephone-line-airline-position-segment))))
+  (telephone-line-mode 1)
+)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;(use-package smart-mode-line
+;  :disabled
+;  :if dw/is-termux
+;  :config
+;  (setq sml/no-confirm-load-theme t)
+;  (sml/setup)
+;  (sml/apply-theme 'respectful)  ; Respect the theme colors
+;  (setq sml/mode-width 'right
+;      sml/name-width 60)
+;
+;  (setq-default mode-line-format
+;  `("%e"
+;      ,(when dw/exwm-enabled
+;          '(:eval (format "[%d] " exwm-workspace-current-index)))
+;      mode-line-front-space
+;      evil-mode-line-tag
+;      mode-line-mule-info
+;      mode-line-client
+;      mode-line-modified
+;      mode-line-remote
+;      mode-line-frame-identification
+;      mode-line-buffer-identification
+;      sml/pos-id-separator
+;      (vc-mode vc-mode)
+;      " "
+;      ;mode-line-position
+;      sml/pre-modes-separator
+;      mode-line-modes
+;      " "
+;      mode-line-misc-info))
+;
+;  (setq rm-excluded-modes
+;    (mapconcat
+;      'identity
+;      ; These names must start with a space!
+;      '(" GitGutter" " MRev" " company"
+;      " Helm" " Undo-Tree" " Projectile.*" " Z" " Ind"
+;      " Org-Agenda.*" " ElDoc" " SP/s" " cider.*")
+;      "\\|")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+;; You must run (all-the-icons-install-fonts) one time after
+;; installing this package!
+
+;(use-package minions
+;  :hook (doom-modeline-mode . minions-mode))
+;
+;(use-package doom-modeline
+;  :after eshell     ;; Make sure it gets hooked after eshell
+;  :hook (after-init . doom-modeline-init)
+;  :custom-face
+;  (mode-line ((t (:height 0.85))))
+;  (mode-line-inactive ((t (:height 0.85))))
+;  :custom
+;  (doom-modeline-height 15)
+;  (doom-modeline-bar-width 6)
+;  (doom-modeline-lsp t)
+;  (doom-modeline-github nil)
+;  (doom-modeline-mu4e nil)
+;  (doom-modeline-irc nil)
+;  (doom-modeline-minor-modes t)
+;  (doom-modeline-persp-name nil)
+;  (doom-modeline-buffer-file-name-style 'truncate-except-project)
+;  (doom-modeline-major-mode-icon nil))
+#+END_SRC
+
+** Highlight Matching Braces
+
+#+BEGIN_SRC emacs-lisp
+(use-package paren
+    :config
+    (set-face-background 'show-paren-match (face-background 'default))
+    (set-face-foreground 'show-paren-match "#FF8E0D")
+    (set-face-attribute 'show-paren-match nil :weight 'bold)
+    (show-paren-mode 1))
+#+END_SRC
+
+
+* Editing Configuration
+** Tabs & Spaces
+
+#+BEGIN_SRC emacs-lisp
+; set tab with to 2 spaces
+(setq-default tab-width 2)
+(setq-default evil-shift-width tab-width)
+
+;use spaces, not tabs
+(setq-default indent-tabs-mode nil)
+#+END_SRC
+
+** Commenting Lines
+
+#+BEGIN_SRC emacs-lisp
+;; Emacs key bindings
+;; (g-lobal-set-key (kbd "M-;") 'evilnc-comment-or-uncomment-lines)
+;; (global-set-key (kbd "C-c l") 'evilnc-quick-comment-or-uncomment-to-the-line)
+;; (global-set-key (kbd "C-c c") 'evilnc-copy-and-comment-lines)
+;; (global-set-key (kbd "C-c p") 'evilnc-comment-or-uncomment-paragraphs)
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+#+END_SRC
+
+** Frame Scaling / Zooming
+Keybindings are: C+M+- and C+M++.
+
+#+BEGIN_SRC emacs-lisp
+(use-package default-text-scale
+  :defer 1
+  :config
+  (default-text-scale-mode))
+(global-set-key (kbd "C-M-+") 'default-text-scale-increase)
+(global-set-key (kbd "C-M--") 'default-text-scale-decrease)
+#+END_SRC
+
 ** Line numbering
 #+BEGIN_SRC emacs-lisp
 (defun cc/toggle-line-numbering ()
@@ -72,7 +246,8 @@
 (global-set-key (kbd "C-c l") 'cc/toggle-line-numbering)
 #+END_SRC
 
-* Configure Packages
+
+
 ** Evil mode
 #+BEGIN_SRC emacs-lisp
 ;; evil mode
@@ -97,8 +272,11 @@
   (defvar my-leader-map (make-sparse-keymap) "Keymap for 'leader key' shortcuts.")
   (evil-define-key 'normal (current-global-map) my-leader my-leader-map)
   (evil-define-key 'mortion (current-global-map) my-leader my-leader-map)
+  (evil-ex-define-cmd "q" 'kill-this-buffer)
+  (evil-ex-define-cmd "quit" 'evil-quit)
 )
 #+END_SRC
+
 ** Ivy
 #+BEGIN_SRC emacs-lisp
 (use-package ivy :demand
@@ -118,56 +296,113 @@
 ** Org mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :ensure t
-  :defer t
-  :config
-  (define-key org-mode-map
-	(kbd "RET") 'org-return-indent)
-  ;; org-mode keybindings
-  (evil-define-key 'normal org-mode-map
-	(kbd "TAB") 'org-cycle
-	(concat my-leader "c") 'org-ctrl-c-ctrl-c
-	(concat my-leader "t") 'org-todo
-	(concat my-leader "oa") '(lambda () (interactive) (org-agenda-file-to-front) (org-agenda))
-	(concat my-leader "oA") 'org-archive-to-archive-sibling
-	(concat my-leader "on") 'org-narrow-to-subtree
-	(concat my-leader "ow") 'widen
-	(concat my-leader "ot") 'org-time-stamp
-	"gx" 'org-open-at-point)
-  ;; add plantuml mode
-  (add-to-list
-   'org-src-lang-modes '("plantuml" . plantuml))
+    :ensure t
+    :defer t
+    :config
+    (define-key org-mode-map
+        (kbd "RET") 'org-return-indent)
+    ;; org-mode keybindings
+    (evil-define-key 'normal org-mode-map
+        (kbd "TAB") 'org-cycle
+        (concat my-leader "c") 'org-ctrl-c-ctrl-c
+        (concat my-leader "t") 'org-todo
+        (concat my-leader "oa") '(lambda () (interactive) (org-agenda-file-to-front) (org-agenda))
+        (concat my-leader "oA") 'org-archive-to-archive-sibling
+        (concat my-leader "on") 'org-narrow-to-subtree
+        (concat my-leader "ow") 'widen
+        (concat my-leader "ot") 'org-time-stamp
+        "gx" 'org-open-at-point)
+    ;; add plantuml mode
+    (add-to-list
+    'org-src-lang-modes '("plantuml" . plantuml))
 
-  ;; org-mode bindings that should work in visual mode
-  (evil-define-key 'motion org-mode-map
+    ;; org-mode bindings that should work in visual mode
+    (evil-define-key 'motion org-mode-map
     (concat my-leader "ol") 'org-insert-link
     (concat my-leader "os") 'org-store-link)
-  ;; org agenda keybindings
-  (evil-define-key 'normal org-agenda-mode-map
-	(concat my-leader "t") 'org-agenda-todo
-	(concat my-leader "r") 'org-agenda-redo
-	(concat my-leader "oA") 'org-agenda-archive-to-archive-sibling)
-    
-  ;;settings
-  (add-hook 'org-mode-hook 'auto-fill-mode)
-  (add-hook 'org-mode-hook (lambda () (interactive)
-								  (setq indent-tabs-mode nil)))
-  (setq org-hide-leading-stars t
-		org-tags-column 0
-		org-agenda-tags-column 0
-		org-archive-reversed-order t
-		org-ellipsis " …")
-  ;; truncate and wrap chars; org only makes display table on load when ellipsis is set, but that's
-  ;; too late for adding custom glyphs, so make it ourselves
-  (unless org-display-table
-	(setq org-display-table (make-display-table)))
-  (set-display-table-slot org-display-table 'truncation ?…)
-  (set-display-table-slot org-display-table 'wrap ?…)
+    ;; org agenda keybindings
+    (evil-define-key 'normal org-agenda-mode-map
+        (concat my-leader "t") 'org-agenda-todo
+        (concat my-leader "r") 'org-agenda-redo
+        (concat my-leader "oA") 'org-agenda-archive-to-archive-sibling)
 
-  ;; prevent org mode from repositioning the screen after (un)folding
-  (remove-hook 'org-cycle-hook
-			   #'org-optimize-window-after-visibility-change))
+    ;;settings
+    (add-hook 'org-mode-hook 'auto-fill-mode)
+    (add-hook 'org-mode-hook (lambda () (interactive)
+                                                                    (setq indent-tabs-mode nil)))
+    (setq org-hide-leading-stars t
+                org-tags-column 0
+                org-agenda-tags-column 0
+                org-archive-reversed-order t
+                org-ellipsis " …")
+    ;; truncate and wrap chars; org only makes display table on load when ellipsis is set, but that's
+    ;; too late for adding custom glyphs, so make it ourselves
+    (unless org-display-table
+        (setq org-display-table (make-display-table)))
+    (set-display-table-slot org-display-table 'truncation ?…)
+    (set-display-table-slot org-display-table 'wrap ?…)
+
+    ;; prevent org mode from repositioning the screen after (un)folding
+    (remove-hook 'org-cycle-hook
+                            #'org-optimize-window-after-visibility-change))
+
+  ;; Always redisplay inline images after executing SRC block
+  (eval-after-load 'org
+    (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 #+END_SRC
+
+** Fonts and bullets
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-superstar
+  :after org
+  :hook (org-mode . org-superstar-mode)
+  :custom
+  ;; (org-superstar-remove-leading-stars t)
+  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+;; Replace list hyphen with dot
+;; (font-lock-add-keywords 'org-mode
+;;                         '(("^ *\\([-]\\) "
+;;                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+;; Increase the size of various headings
+(set-face-attribute 'org-document-title nil :font "JetBrains Mono" :weight 'bold :height 1.3)
+(dolist (face '((org-level-1 . 1.2)
+                (org-level-2 . 1.1)
+                (org-level-3 . 1.05)
+                (org-level-4 . 1.0)
+                (org-level-5 . 1.1)
+                (org-level-6 . 1.1)
+                (org-level-7 . 1.1)
+                (org-level-8 . 1.1)))
+  (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face)))
+
+;; Make sure org-indent face is available
+(require 'org-indent)
+
+;; Ensure that anything that should be fixed-pitch in Org files appears that way
+(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
+(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+
+;; Get rid of the background on column views
+(set-face-attribute 'org-column nil :background nil)
+(set-face-attribute 'org-column-title nil :background nil)
+#+END_SRC
+** Indenting of source in org-mode
+
+#+BEGIN_SRC emacs-lisp
+(setq org-src-preserve-indentation nil 
+      org-edit-src-content-indentation 0)
+#+END_SRC
+
 ** Capture & Refile
 #+BEGIN_SRC emacs-lisp
 (setq org-default-notes-file "~/Documents/Org/inbox.org")
@@ -204,8 +439,141 @@
 (eval-after-load "org"
     '(require 'ox-gfm nil t))
 )
-
 (use-package ox-hugo
   :ensure t
   :after ox)
+#+END_SRC
+** PlantUML
+#+BEGIN_SRC emacs-lisp
+(use-package plantuml-mode
+    :ensure t
+    :config
+    (setq plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
+    (setq plantuml-default-exec-mode 'jar)
+    (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+    (add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
+    (add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
+    (setq plantuml-output-type "png"))
+
+(setq org-plantuml-jar-path (expand-file-name "/usr/share/java/plantuml/plantuml.jar"))
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
+(with-eval-after-load 'ox-hugo
+  (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
+#+END_SRC
+
+** Mermaid and org-babel support
+#+BEGIN_SRC emacs-lisp
+  (use-package ob-mermaid
+      :ensure t)
+
+;;  (defun mermaid/post-init-org ()
+;;      (spacemacs|use-package-add-hook org
+;;          :post-config (add-to-list 'org-babel-load-languages '(mermaid . t))))
+
+;;  (defun mermaid/init-ob-mermaid ()
+;;      (use-package ob-mermaid))
+
+  (setq ob-mermaid-cli-path "/usr/bin/mmdc")
+#+END_SRC
+
+#+RESULTS:
+: /usr/bin/mmdc
+
+#+BEGIN_SRC emacs-lisp
+(use-package format-all
+  :preface
+  (defun ian/format-code ()
+    "Auto-format whole buffer."
+    (interactive)
+    (if (derived-mode-p 'prolog-mode)
+        (prolog-indent-buffer)
+      (format-all-buffer)))
+  :config
+  (global-set-key (kbd "M-F") #'ian/format-code)
+  (add-hook 'prog-mode-hook #'format-all-ensure-formatter))
+#+END_SRC
+
+** Org-roam try-out
+   Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Crafters]].
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/Documents/RoamNotes")
+    (org-roam-completion-everywhere t)
+;(org-roam-capture-templates
+    :bind (("C-c n l" . org-roam-buffer-toggle)
+            ("C-c n f" . org-roam-node-find)
+            ("C-c n i" . org-roam-node-insert)
+    :map org-mode-map
+        ("C-M-i" . completion-at-point))
+    :config
+    (org-roam-setup))
+#+END_SRC
+** Presentations
+   org-present is the package I use for giving presentations in Emacs. I like it because it's simple and allows me to customize the display of it pretty easily.
+
+#+BEGIN_SRC emacs-lisp
+(defun dw/org-present-prepare-slide ()
+  (org-overview)
+  (org-show-entry)
+  (org-show-children))
+
+(defun dw/org-present-hook ()
+  (setq-local face-remapping-alist '((default (:height 1.5) variable-pitch)
+                                     (header-line (:height 4.5) variable-pitch)
+                                     (org-code (:height 1.55) org-code)
+                                     (org-verbatim (:height 1.55) org-verbatim)
+                                     (org-block (:height 1.25) org-block)
+                                     (org-block-begin-line (:height 0.7) org-block)))
+  (setq header-line-format " ")
+  (org-display-inline-images)
+  (dw/org-present-prepare-slide))
+
+(defun dw/org-present-quit-hook ()
+  (setq-local face-remapping-alist '((default variable-pitch default)))
+  (setq header-line-format nil)
+  (org-present-small)
+  (org-remove-inline-images))
+
+(defun dw/org-present-prev ()
+  (interactive)
+  (org-present-prev)
+  (dw/org-present-prepare-slide))
+
+(defun dw/org-present-next ()
+  (interactive)
+  (org-present-next)
+  (dw/org-present-prepare-slide))
+
+(use-package org-present
+  :bind (:map org-present-mode-keymap
+         ("C-c C-j" . dw/org-present-next)
+         ("C-c C-k" . dw/org-present-prev))
+  :hook ((org-present-mode . dw/org-present-hook)
+         (org-present-mode-quit . dw/org-present-quit-hook)))
+#+END_SRC
+** Markdown
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  ;; :straight t
+  :mode "\\.md\\'"
+  :config
+  (setq markdown-command "marked")
+  (defun dw/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.2)
+                    (markdown-header-face-2 . 1.1)
+                    (markdown-header-face-3 . 1.0)
+                    (markdown-header-face-4 . 1.0)
+                    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :height (cdr face))))
+
+  (defun dw/markdown-mode-hook ()
+    (dw/set-markdown-header-font-sizes))
+
+  (add-hook 'markdown-mode-hook 'dw/markdown-mode-hook))
 #+END_SRC
