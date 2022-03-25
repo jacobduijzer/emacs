@@ -421,12 +421,16 @@ Keybindings are: C+M+- and C+M++.
 (global-set-key (kbd "C-c c") 'org-capture)
 
 (setq org-capture-templates
-      (quote (("t" "Todo" entry (file+datetree org-default-notes-file)
-	       "* TODO %? %U" :empty-lines 1) 
-              ("n" "Note" entry (file+datetree org-default-notes-file)
-	       "* NOTE %? %U" :empty-lines 1)
+      (quote (
+				("t" "Todo" entry (file+datetree org-default-notes-file)
+						"* TODO %? %U" :empty-lines 1) 
+        ("n" "Note" entry (file+datetree org-default-notes-file)
+	       		"* NOTE %? %U" :empty-lines 1)
 	      ("m" "Meeting" entry (file+datetree org-default-notes-file)
-               "* MEETING %? %U\n  With: \n" :empty-lines 1)
+						"* MEETING %? %U\n  With: \n" :empty-lines 1)
+        ("s" "Standup" entry (file+datetree org-default-notes-file)
+						"* STANDUP %U\n Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n" :prepend t :empty-lines 1)
+
 	      ))) 
 #+END_SRC
 ** Blogging with Hugo
@@ -504,7 +508,18 @@ Keybindings are: C+M+- and C+M++.
     :custom
     (org-roam-directory "~/Documents/RoamNotes")
     (org-roam-completion-everywhere t)
-;(org-roam-capture-templates
+    (org-roam-capture-templates
+      '(("d" "default" entry "* %<%I:%M %p>: %?"
+        :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n")
+				:unnarrowed t)
+        ("b" "book notes" plain (file "~/Documents/RoamNotes/Templates/BookNoteTemplate.org")
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+    :unnarrowed t)
+        ("s" "standup" plain (file "~/Documents/RoamNotes/Templates/StandupTemplate.org")
+        :if-new (file+head "%<%Y%m%d%H%M%S>-standup.org" "#+title: ${title}\n")
+    :unnarrowed t)
+
+))
     :bind (("C-c n l" . org-roam-buffer-toggle)
             ("C-c n f" . org-roam-node-find)
             ("C-c n i" . org-roam-node-insert)
@@ -513,6 +528,10 @@ Keybindings are: C+M+- and C+M++.
     :config
     (org-roam-setup))
 #+END_SRC
+
+#+RESULTS:
+: completion-at-point
+
 ** Presentations
    org-present is the package I use for giving presentations in Emacs. I like it because it's simple and allows me to customize the display of it pretty easily.
 
@@ -577,3 +596,26 @@ Keybindings are: C+M+- and C+M++.
 
   (add-hook 'markdown-mode-hook 'dw/markdown-mode-hook))
 #+END_SRC
+** Reveal presentations
+
+#+BEGIN_SRC emacs-lisp
+;; Reveal.js + Org mode
+(require 'ox-reveal)
+(setq org-reveal-root "file:///home/jacob/projects/github/presentations/reveal.js")
+(setq org-reveal-title-slide nil)
+#+END_SRC
+
+** Sonic Pi
+
+   #+BEGIN_SRC emacs-lisp
+(add-to-list 'load-path "~/.sonic-pi.el/")
+(require 'sonic-pi)
+(setq sonic-pi-path "/home/jacob/bin/sonic-pi/") ; Must end with "/"
+
+;; Optionally define a hook
+(add-hook 'sonic-pi-mode-hook
+          (lambda ()
+            ;; This setq can go here instead if you wish
+            (setq sonic-pi-path "/home/jacob/bin/sonic-pi/")
+            (define-key ruby-mode-map "\C-c\C-b" 'sonic-pi-stop-all)))
+   #+END_SRC
