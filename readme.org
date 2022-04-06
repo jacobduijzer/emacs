@@ -2,6 +2,7 @@
 #+AUTHOR: Jacob Duijzer
 
 * Repositories and Packages
+
 ** Repositories
 
 #+BEGIN_SRC emacs-lisp
@@ -21,6 +22,7 @@
   (package-refresh-contents)
   (package-install 'use-package))
 #+END_SRC
+
 ** Custom file
 
 #+BEGIN_SRC emacs-lisp
@@ -29,8 +31,13 @@
     (load custom-file))
 #+END_SRC
 
+** Load custom files
 
+#+BEGIN_SRC emacs-list
+(setq load-path (cons "~/.emacs.d/custom" load-path))
+#+END_SRC
 * General Emacs Setup, Layout & Theming
+
 ** General Emacs settings
 
 #+BEGIN_SRC emacs-lisp
@@ -50,30 +57,68 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
 #+END_SRC
+
+** Auto resize emacs
+
+   #+BEGIN_SRC emacs-lisp
+;; Set initial frame size and position
+(defun my/set-initial-frame ()
+ (let* ((base-factor 0.70)
+(a-width (* (display-pixel-width) base-factor))
+       (a-height (* (display-pixel-height) base-factor))
+       (a-left (truncate (/ (- (display-pixel-width) a-width) 2)))
+(a-top (truncate (/ (- (display-pixel-height) a-height) 2))))
+   (set-frame-position (selected-frame) a-left a-top)
+   (set-frame-size (selected-frame) (truncate a-width)  (truncate a-height) t)))
+(setq frame-resize-pixelwise t)
+(my/set-initial-frame)
+   #+END_SRC
+   
 ** All the icons
+
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons
     :ensure t)
 #+END_SRC
 
 ** Auto-reload files
+
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode 1)
 #+END_SRC
+
 ** Font settings
+
 #+BEGIN_SRC emacs-lisp
 (defvar runemacs/default-font-size 80)
-;; (set-face-attribute 'default nil :font "Iosevka Aile" :height runemacs/default-font-size)
-;;(set-face-attribute 'default nil :font "Fira Code Retina" :height runemacs/default-font-size)
-(set-face-attribute 'default nil :font "JetBrains Mono" :height runemacs/default-font-size)
+(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height runemacs/default-font-size)
 #+END_SRC
+
 ** Theme
+
 #+BEGIN_SRC emacs-lisp
 ;; theme / layout / font
-(use-package spacemacs-common
-    :ensure spacemacs-theme
-    :config (load-theme 'spacemacs-dark t))
+;(use-package spacemacs-common
+;    :ensure spacemacs-theme
+;    :config (load-theme 'spacemacs-dark t))
 #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package modus-themes
+	:ensure
+	:init
+	(setq modus-themes-italic-constructs t
+      modus-themes-bold-constructs nil
+      modus-themes-region '(bg-only no-extend))
+	(modus-themes-load-themes)
+	:config
+  ;(modus-themes-load-operandi)            ; Light theme
+  (modus-themes-load-vivendi)             ; Dark theme
+	:bind ("<f5>" . modus-themes-toggle))
+#+END_SRC
+
+#+RESULTS:
+
 ** Emojis in buffer
 
 #+BEGIN_SRC emacs-lisp
@@ -81,7 +126,6 @@
   :hook (erc-mode . emojify-mode)
   :commands emojify-mode)
 #+END_SRC
-
 
 * Mode Line
 ** Basic customization
@@ -211,11 +255,6 @@
 ** Commenting Lines
 
 #+BEGIN_SRC emacs-lisp
-;; Emacs key bindings
-;; (g-lobal-set-key (kbd "M-;") 'evilnc-comment-or-uncomment-lines)
-;; (global-set-key (kbd "C-c l") 'evilnc-quick-comment-or-uncomment-to-the-line)
-;; (global-set-key (kbd "C-c c") 'evilnc-copy-and-comment-lines)
-;; (global-set-key (kbd "C-c p") 'evilnc-comment-or-uncomment-paragraphs)
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
@@ -246,9 +285,8 @@ Keybindings are: C+M+- and C+M++.
 (global-set-key (kbd "C-c l") 'cc/toggle-line-numbering)
 #+END_SRC
 
-
-
 ** Evil mode
+
 #+BEGIN_SRC emacs-lisp
 ;; evil mode
 (setq evil-want-keybinding nil)
@@ -278,6 +316,7 @@ Keybindings are: C+M+- and C+M++.
 #+END_SRC
 
 ** Ivy
+
 #+BEGIN_SRC emacs-lisp
 (use-package ivy :demand
   :ensure t
@@ -293,7 +332,9 @@ Keybindings are: C+M+- and C+M++.
   (define-key my-leader-map "b" 'ivy-switch-buffer)
   )
 #+END_SRC
+
 ** Org mode
+
 #+BEGIN_SRC emacs-lisp
 (use-package org
     :ensure t
@@ -351,51 +392,95 @@ Keybindings are: C+M+- and C+M++.
     (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 #+END_SRC
 
+** Modern Org Style
+
+   #+BEGIN_SRC emacs-lisp
+;(modus-themes-load-operandi)
+
+;; Add frame borders and window dividers
+(modify-all-frames-parameters
+ '((right-divider-width . 40)
+   (internal-border-width . 40)))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(set-face-background 'fringe (face-attribute 'default :background))
+
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
+
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+ org-ellipsis "…"
+
+ ;; Agenda styling
+ org-agenda-block-separator ?─
+ org-agenda-time-grid
+ '((daily today require-timed)
+   (800 1000 1200 1400 1600 1800 2000)
+   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+ org-agenda-current-time-string
+ "⭠ now ─────────────────────────────────────────────────")
+
+;; Enable org-modern-mode
+(add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+   #+END_SRC
+
 ** Fonts and bullets
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-superstar
-  :after org
-  :hook (org-mode . org-superstar-mode)
-  :custom
-  ;; (org-superstar-remove-leading-stars t)
-  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-;; Replace list hyphen with dot
-;; (font-lock-add-keywords 'org-mode
-;;                         '(("^ *\\([-]\\) "
-;;                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-;; Increase the size of various headings
-(set-face-attribute 'org-document-title nil :font "JetBrains Mono" :weight 'bold :height 1.3)
-(dolist (face '((org-level-1 . 1.2)
-                (org-level-2 . 1.1)
-                (org-level-3 . 1.05)
-                (org-level-4 . 1.0)
-                (org-level-5 . 1.1)
-                (org-level-6 . 1.1)
-                (org-level-7 . 1.1)
-                (org-level-8 . 1.1)))
-  (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'medium :height (cdr face)))
-
-;; Make sure org-indent face is available
-(require 'org-indent)
-
-;; Ensure that anything that should be fixed-pitch in Org files appears that way
-(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
-(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
-(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-
-;; Get rid of the background on column views
-(set-face-attribute 'org-column nil :background nil)
-(set-face-attribute 'org-column-title nil :background nil)
+;(use-package org-superstar
+;  :after org
+;  :hook (org-mode . org-superstar-mode)
+;  :custom
+;  ;; (org-superstar-remove-leading-stars t)
+;  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")))
+;
+;;; Replace list hyphen with dot
+;;; (font-lock-add-keywords 'org-mode
+;;;                         '(("^ *\\([-]\\) "
+;;;                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+;
+;;; Increase the size of various headings
+;(set-face-attribute 'org-document-title nil :font "JetBrainsMono Nerd Font" :weight 'bold :height 1.3)
+;(dolist (face '((org-level-1 . 1.2)
+;                (org-level-2 . 1.1)
+;                (org-level-3 . 1.05)
+;                (org-level-4 . 1.0)
+;                (org-level-5 . 1.1)
+;                (org-level-6 . 1.1)
+;                (org-level-7 . 1.1)
+;                (org-level-8 . 1.1)))
+;  (set-face-attribute (car face) nil :font "JetBrainsMono Nerd Font" :weight 'medium :height (cdr face)))
+;
+;;; Make sure org-indent face is available
+;(require 'org-indent)
+;
+;;; Ensure that anything that should be fixed-pitch in Org files appears that way
+;(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+;(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
+;(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+;(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+;(set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+;(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+;(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+;(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+;(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+;
+;;; Get rid of the background on column views
+;(set-face-attribute 'org-column nil :background nil)
+;(set-face-attribute 'org-column-title nil :background nil)
 #+END_SRC
+
 ** Indenting of source in org-mode
 
 #+BEGIN_SRC emacs-lisp
@@ -404,19 +489,20 @@ Keybindings are: C+M+- and C+M++.
 #+END_SRC
 
 ** Capture & Refile
+
 #+BEGIN_SRC emacs-lisp
-(setq org-default-notes-file "~/Documents/Org/inbox.org")
+(setq org-default-notes-file "~/Documents/Notes/inbox.org")
 (setq org-reverse-note-order nil)
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes (quote confirm))
 (setq org-blank-before-new-entry nil)
 (setq org-refile-use-cache nil)
-(setq org-refile-targets '((("~/Documents/Org/inbox.org"
-                             "~/Documents/Org/personal.org"
-                             "~/Documents/Org/farmtrace.org"
-                             "~/Documents/Org/itcare.org"
-                             "~/Documents/Org/rockstars.org") . (:maxlevel . 5))))
+(setq org-refile-targets '((("~/Documents/Notes/inbox.org"
+                             "~/Documents/Notes/personal.org"
+                             "~/Documents/Notes/farmtrace.org"
+                             "~/Documents/Notes/itcare.org"
+                             "~/Documents/Notes/rockstars.org") . (:maxlevel . 5))))
 
 (global-set-key (kbd "C-c c") 'org-capture)
 
@@ -433,7 +519,9 @@ Keybindings are: C+M+- and C+M++.
 
 	      ))) 
 #+END_SRC
+
 ** Blogging with Hugo
+
 #+BEGIN_SRC emacs-lisp
 ;; Github Flavored Markdown exporter for Org Mode
 (use-package ox-gfm
@@ -447,7 +535,9 @@ Keybindings are: C+M+- and C+M++.
   :ensure t
   :after ox)
 #+END_SRC
+
 ** PlantUML
+
 #+BEGIN_SRC emacs-lisp
 (use-package plantuml-mode
     :ensure t
@@ -466,6 +556,7 @@ Keybindings are: C+M+- and C+M++.
 #+END_SRC
 
 ** Mermaid and org-babel support
+
 #+BEGIN_SRC emacs-lisp
   (use-package ob-mermaid
       :ensure t)
@@ -479,9 +570,6 @@ Keybindings are: C+M+- and C+M++.
 
   (setq ob-mermaid-cli-path "/usr/bin/mmdc")
 #+END_SRC
-
-#+RESULTS:
-: /usr/bin/mmdc
 
 #+BEGIN_SRC emacs-lisp
 (use-package format-all
@@ -529,10 +617,8 @@ Keybindings are: C+M+- and C+M++.
     (org-roam-setup))
 #+END_SRC
 
-#+RESULTS:
-: completion-at-point
-
 ** Presentations
+   
    org-present is the package I use for giving presentations in Emacs. I like it because it's simple and allows me to customize the display of it pretty easily.
 
 #+BEGIN_SRC emacs-lisp
@@ -575,6 +661,7 @@ Keybindings are: C+M+- and C+M++.
   :hook ((org-present-mode . dw/org-present-hook)
          (org-present-mode-quit . dw/org-present-quit-hook)))
 #+END_SRC
+
 ** Markdown
 
 #+BEGIN_SRC emacs-lisp
@@ -596,6 +683,7 @@ Keybindings are: C+M+- and C+M++.
 
   (add-hook 'markdown-mode-hook 'dw/markdown-mode-hook))
 #+END_SRC
+
 ** Reveal presentations
 
 #+BEGIN_SRC emacs-lisp
@@ -610,12 +698,12 @@ Keybindings are: C+M+- and C+M++.
    #+BEGIN_SRC emacs-lisp
 (add-to-list 'load-path "~/.sonic-pi.el/")
 (require 'sonic-pi)
-(setq sonic-pi-path "/home/jacob/bin/sonic-pi/") ; Must end with "/"
+(setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/") ; Must end with "/"
 
 ;; Optionally define a hook
 (add-hook 'sonic-pi-mode-hook
           (lambda ()
             ;; This setq can go here instead if you wish
-            (setq sonic-pi-path "/home/jacob/bin/sonic-pi/")
+            (setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/")
             (define-key ruby-mode-map "\C-c\C-b" 'sonic-pi-stop-all)))
    #+END_SRC
