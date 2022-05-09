@@ -739,17 +739,15 @@ Keybindings are: C+M+- and C+M++.
 (setq org-reveal-title-slide nil)
 #+END_SRC
 
-** Sonic Pi
-
    #+BEGIN_SRC emacs-lisp
-(add-to-list 'load-path "~/.sonic-pi.el/")
-(require 'sonic-pi)
-(setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/") ; Must end with "/"
-
-;; Optionally define a hook
-(add-hook 'sonic-pi-mode-hook
-          (lambda ()
-            ;; This setq can go here instead if you wish
-            (setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/")
-            (define-key ruby-mode-map "\C-c\C-b" 'sonic-pi-stop-all)))
+;;(add-to-list 'load-path "~/.sonic-pi.el/")
+;;(require 'sonic-pi)
+;;(setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/") ; Must end with "/"
+;;
+;;;; Optionally define a hook
+;;(add-hook 'sonic-pi-mode-hook
+;;          (lambda ()
+;;            ;; This setq can go here instead if you wish
+;;            (setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/")
+;;            (define-key ruby-mode-map "\C-c\C-b" 'sonic-pi-stop-all)))
    #+END_SRC
