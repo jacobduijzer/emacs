@@ -145,6 +145,8 @@ If FRAME is omitted or nil, use currently selected frame."
 (defvar runemacs/default-font-size 80)
 (when (my/is-linux)
   (set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height runemacs/default-font-size))
+(when (my/is-windows)
+  (set-face-attribute 'default nil :font "JetBrainsMONO NF" :height runemacs/default-font-size))
 #+END_SRC
 
 ** Theme
