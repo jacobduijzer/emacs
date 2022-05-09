@@ -53,10 +53,14 @@
 (set-fringe-mode 10)        ; Give some breathing room
 (menu-bar-mode -1)          ; Disable the menu bar
 (blink-cursor-mode -1)
-(display-time-mode 1)
+(display-time-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
+(modify-all-frames-parameters	'((internal-border-width . 30)))	
 #+END_SRC
+
+#+RESULTS:
+: ((vertical-scroll-bars) (left-fringe . 10) (right-fringe . 10) (internal-border-width . 30))
 
 ** Auto resize emacs
 
@@ -73,7 +77,55 @@
 (setq frame-resize-pixelwise t)
 (my/set-initial-frame)
    #+END_SRC
-   
+
+** Center window on current monitor
+
+#+BEGIN_SRC emacs-lisp
+(defun my/frame-recenter (&optional frame)
+  "Center FRAME on the screen.
+FRAME can be a frame name, a terminal name, or a frame.
+If FRAME is omitted or nil, use currently selected frame."
+  (interactive)
+  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
+    (modify-frame-parameters
+     frame '((user-position . t) (top . 0.5) (left . 0.8)))))
+;(my/frame-recenter)
+#+END_SRC
+** Restart Emacs
+
+#+BEGIN_SRC emacs-lisp
+(defun mu-quit-or-restart (&optional restart)
+  "Quit Emacs or restart it with RESTART."
+  (interactive "P")
+  (if restart
+      (restart-emacs)
+    (save-buffers-kill-terminal t)))
+;(keymap-global-set "C-x C-c" #'mu-quit-or-restart)
+(global-set-key (kbd "C-x C-x") 'mu-quit-or-restart)
+#+END_SRC
+
+** Determine OS type
+
+#+BEGIN_SRC emacs-lisp
+;; check is system is macOS
+(defun my/is-macos ()
+	"Return true if system is darwin-based (Mac OS X)"
+	(string-equal system-type "darwin"))
+
+;; check if system is Windows
+(defun my/is-windows ()
+	"Return true if system is Windows-based"
+  (string-equal system-type "windows-nt"))
+
+;; check if system is GNU/Linux
+(defun my/is-linux ()
+	"Return true is system is GNU/Linux-based"
+  (string-equal system-type "gnu/linux"))
+#+END_SRC
+
+#+RESULTS:
+: my/is-linux
+
 ** All the icons
 
 #+BEGIN_SRC emacs-lisp
@@ -91,7 +143,8 @@
 
 #+BEGIN_SRC emacs-lisp
 (defvar runemacs/default-font-size 80)
-(set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height runemacs/default-font-size)
+(when (my/is-linux)
+  (set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height runemacs/default-font-size))
 #+END_SRC
 
 ** Theme
@@ -116,8 +169,6 @@
   (modus-themes-load-vivendi)             ; Dark theme
 	:bind ("<f5>" . modus-themes-toggle))
 #+END_SRC
-
-#+RESULTS:
 
 ** Emojis in buffer
 
@@ -396,11 +447,6 @@ Keybindings are: C+M+- and C+M++.
 
    #+BEGIN_SRC emacs-lisp
 ;(modus-themes-load-operandi)
-
-;; Add frame borders and window dividers
-(modify-all-frames-parameters
- '((right-divider-width . 40)
-   (internal-border-width . 40)))
 (dolist (face '(window-divider
                 window-divider-first-pixel
                 window-divider-last-pixel))
