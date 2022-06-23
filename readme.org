@@ -1,6 +1,9 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Jacob Duijzer
 
+This is my current Emacs configuration. It is still a bit messy,
+currently working on it!
+
 * Table of Contents
 :PROPERTIES:
 :TOC:      :include all :depth 4 :force (depth) :ignore (this) :local (nothing)
