@@ -5,7 +5,39 @@
 
 * Heading
 :PROPERTIES:
-:TOC:      :include all
+:TOC:      :include all :depth 3 :force (depth) :ignore (nothing) :local (nothing)
+:END:
+:CONTENTS:
+- [[#general-emacs][General Emacs]]
+- [[#heading][Heading]]
+  - [[#repositories-and-packages][Repositories and Packages]]
+  - [[#layout--theming][Layout & Theming]]
+  - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
+- [[#mode-line][Mode Line]]
+  - [[#basic-customization][Basic customization]]
+  - [[#highlight-matching-braces][Highlight Matching Braces]]
+- [[#editing-configuration][Editing Configuration]]
+  - [[#tabs--spaces][Tabs & Spaces]]
+  - [[#commenting-lines][Commenting Lines]]
+  - [[#frame-scaling--zooming][Frame Scaling / Zooming]]
+  - [[#line-numbering][Line numbering]]
+  - [[#evil-mode][Evil mode]]
+  - [[#ivy][Ivy]]
+  - [[#completion-with-vertico][Completion with Vertico]]
+  - [[#completion-annotations-with-marginalia][Completion Annotations with Marginalia]]
+  - [[#org-mode][Org mode]]
+  - [[#modern-org-style][Modern Org Style]]
+  - [[#fonts-and-bullets][Fonts and bullets]]
+  - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
+  - [[#capture--refile][Capture & Refile]]
+  - [[#blogging-with-hugo][Blogging with Hugo]]
+  - [[#plantuml][PlantUML]]
+  - [[#mermaid-and-org-babel-support][Mermaid and org-babel support]]
+  - [[#org-roam-try-out][Org-roam try-out]]
+  - [[#presentations][Presentations]]
+  - [[#markdown][Markdown]]
+  - [[#reveal-presentations][Reveal presentations]]
+  - [[#spielerei][Spielerei]]
 :END:
 
 ** Repositories and Packages
@@ -198,8 +230,8 @@ If FRAME is omitted or nil, use currently selected frame."
 *** Update TOC on save
 
 #+BEGIN_SRC emacs-lisp
-(use-package org-make-toc)
-(add-hook 'org-mode-hook #'org-make-toc-mode)
+(use-package org-make-toc
+  :hook (org-mode . org-make-toc-mode))
 #+END_SRC
 
 #+RESULTS:
