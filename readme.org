@@ -45,14 +45,14 @@
   - [[#fonts-and-bullets][Fonts and bullets]]
     - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
     - [[#capture--refile][Capture & Refile]]
+    - [[#org-roam-try-out][Org-roam try-out]]
   - [[#other-applications][Other Applications]]
     - [[#blogging-with-hugo][Blogging with Hugo]]
     - [[#plantuml][PlantUML]]
-  - [[#mermaid-and-org-babel-support][Mermaid and org-babel support]]
-  - [[#org-roam-try-out][Org-roam try-out]]
-  - [[#presentations][Presentations]]
-  - [[#markdown][Markdown]]
-  - [[#reveal-presentations][Reveal presentations]]
+    - [[#mermaid-and-org-babel-support][Mermaid and org-babel support]]
+    - [[#presentations][Presentations]]
+    - [[#markdown][Markdown]]
+    - [[#reveal-presentations][Reveal presentations]]
   - [[#spielerei][Spielerei]]
 :END:
 
@@ -688,74 +688,8 @@ folder, otherwise delete a word"
 
 	            ))) 
 #+END_SRC
-** Other Applications
 
-*** Blogging with Hugo
-
-#+BEGIN_SRC emacs-lisp
-;; Github Flavored Markdown exporter for Org Mode
-(use-package ox-gfm
-  :ensure t
-  :after org
-  :config
-  (eval-after-load "org"
-    '(require 'ox-gfm nil t))
-  )
-(use-package ox-hugo
-  :ensure t
-  :after ox)
-#+END_SRC
-
-*** PlantUML
-
-#+BEGIN_SRC emacs-lisp
-(use-package plantuml-mode
-  :ensure t
-  :config
-  (setq plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
-  (setq plantuml-default-exec-mode 'jar)
-  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
-  (add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
-  (add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
-  (setq plantuml-output-type "png"))
-
-(setq org-plantuml-jar-path (expand-file-name "/usr/share/java/plantuml/plantuml.jar"))
-(org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
-(with-eval-after-load 'ox-hugo
-  (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
-#+END_SRC
-
-** Mermaid and org-babel support
-
-#+BEGIN_SRC emacs-lisp
-(use-package ob-mermaid
-  :ensure t)
-
-;;  (defun mermaid/post-init-org ()
-;;      (spacemacs|use-package-add-hook org
-;;          :post-config (add-to-list 'org-babel-load-languages '(mermaid . t))))
-
-;;  (defun mermaid/init-ob-mermaid ()
-;;      (use-package ob-mermaid))
-
-(setq ob-mermaid-cli-path "/usr/bin/mmdc")
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(use-package format-all
-  :preface
-  (defun ian/format-code ()
-    "Auto-format whole buffer."
-    (interactive)
-    (if (derived-mode-p 'prolog-mode)
-        (prolog-indent-buffer)
-      (format-all-buffer)))
-  :config
-  (global-set-key (kbd "M-F") #'ian/format-code)
-  (add-hook 'prog-mode-hook #'format-all-ensure-formatter))
-#+END_SRC
-
-** Org-roam try-out
+*** Org-roam try-out
 Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Crafters]].
 
 #+BEGIN_SRC emacs-lisp
@@ -833,7 +767,73 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
 #+RESULTS:
 : completion-at-point
 
-** Presentations
+** Other Applications
+*** Blogging with Hugo
+
+#+BEGIN_SRC emacs-lisp
+;; Github Flavored Markdown exporter for Org Mode
+(use-package ox-gfm
+  :ensure t
+  :after org
+  :config
+  (eval-after-load "org"
+    '(require 'ox-gfm nil t))
+  )
+(use-package ox-hugo
+  :ensure t
+  :after ox)
+#+END_SRC
+
+*** PlantUML
+
+#+BEGIN_SRC emacs-lisp
+(use-package plantuml-mode
+  :ensure t
+  :config
+  (setq plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
+  (setq plantuml-default-exec-mode 'jar)
+  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+  (add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
+  (add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
+  (setq plantuml-output-type "png"))
+
+(setq org-plantuml-jar-path (expand-file-name "/usr/share/java/plantuml/plantuml.jar"))
+(org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
+(with-eval-after-load 'ox-hugo
+  (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
+#+END_SRC
+
+*** Mermaid and org-babel support
+
+#+BEGIN_SRC emacs-lisp
+(use-package ob-mermaid
+  :ensure t)
+
+;;  (defun mermaid/post-init-org ()
+;;      (spacemacs|use-package-add-hook org
+;;          :post-config (add-to-list 'org-babel-load-languages '(mermaid . t))))
+
+;;  (defun mermaid/init-ob-mermaid ()
+;;      (use-package ob-mermaid))
+
+(setq ob-mermaid-cli-path "/usr/bin/mmdc")
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package format-all
+  :preface
+  (defun ian/format-code ()
+    "Auto-format whole buffer."
+    (interactive)
+    (if (derived-mode-p 'prolog-mode)
+        (prolog-indent-buffer)
+      (format-all-buffer)))
+  :config
+  (global-set-key (kbd "M-F") #'ian/format-code)
+  (add-hook 'prog-mode-hook #'format-all-ensure-formatter))
+#+END_SRC
+
+*** Presentations
    
    org-present is the package I use for giving presentations in Emacs. I like it because it's simple and allows me to customize the display of it pretty easily.
 
@@ -878,7 +878,7 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
          (org-present-mode-quit . dw/org-present-quit-hook)))
 #+END_SRC
 
-** Markdown
+*** Markdown
 
 #+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
@@ -900,7 +900,7 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
   (add-hook 'markdown-mode-hook 'dw/markdown-mode-hook))
 #+END_SRC
 
-** Reveal presentations
+*** Reveal presentations
 
 #+BEGIN_SRC emacs-lisp
 ;; Reveal.js + Org mode
@@ -969,5 +969,4 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
       "\\|")))
 #+END_SRC
 
-#+RESULTS:
 
