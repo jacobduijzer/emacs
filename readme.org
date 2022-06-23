@@ -17,9 +17,10 @@
     - [[#setup-use-package][Setup use-package]]
     - [[#keep-emacsd-clean][Keep .emacs.d clean]]
     - [[#load-custom-files][Load custom files]]
-  - [[#general-emacs-settings][General Emacs settings]]
-  - [[#layout--theming][Layout & Theming]]
+  - [[#emacs-settings][Emacs settings]]
+    - [[#settings][Settings]]
   - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
+  - [[#layout--theming][Layout & Theming]]
     - [[#emojis-in-buffer][Emojis in buffer]]
     - [[#all-the-icons][All the icons]]
     - [[#auto-reload-files][Auto-reload files]]
@@ -161,8 +162,8 @@ If FRAME is omitted or nil, use currently selected frame."
 (setq load-path (cons "~/.emacs.d/custom" load-path))
 #+END_SRC
 
-** General Emacs settings
-
+** Emacs settings
+*** Settings
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-message t)
@@ -184,7 +185,7 @@ If FRAME is omitted or nil, use currently selected frame."
 ;;(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 ;;(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 #+END_SRC
-** Layout & Theming
+
 ** Show keybinding panel (which-key)
 
 #+BEGIN_SRC emacs-lisp
@@ -195,6 +196,7 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq which-key-idle-delay 0.3))
 #+END_SRC
 
+** Layout & Theming
 *** Emojis in buffer
 
 #+BEGIN_SRC emacs-lisp
