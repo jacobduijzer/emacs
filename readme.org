@@ -2,6 +2,12 @@
 #+AUTHOR: Jacob Duijzer
 
 * General Emacs 
+
+* Heading
+:PROPERTIES:
+:TOC:      :include all
+:END:
+
 ** Repositories and Packages
 *** Repositories
 
@@ -188,6 +194,15 @@ If FRAME is omitted or nil, use currently selected frame."
   (modus-themes-load-vivendi)             ; Dark theme
 	:bind ("<f5>" . modus-themes-toggle))
 #+END_SRC
+
+*** Update TOC on save
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-make-toc)
+(add-hook 'org-mode-hook #'org-make-toc-mode)
+#+END_SRC
+
+#+RESULTS:
 
 * Mode Line
 ** Basic customization
