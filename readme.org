@@ -3,13 +3,29 @@
 
 * Table of Contents
 :PROPERTIES:
-:TOC:      :include all :depth 3 :force (depth) :ignore (this) :local (nothing)
+:TOC:      :include all :depth 4 :force (depth) :ignore (this) :local (nothing)
 :END:
 :CONTENTS:
 - [[#general-emacs][General Emacs]]
-  - [[#repositories-and-packages][Repositories and Packages]]
+  - [[#custom-functions][Custom Functions]]
+    - [[#determine-os-type][Determine OS type]]
+    - [[#auto-resize-emacs][Auto resize emacs]]
+    - [[#center-window-on-current-monitor][Center window on current monitor]]
+    - [[#restart-emacs][Restart Emacs]]
+  - [[#repositories--packages-setup][Repositories & Packages setup]]
+    - [[#repositories][Repositories]]
+    - [[#setup-use-package][Setup use-package]]
+    - [[#keep-emacsd-clean][Keep .emacs.d clean]]
+    - [[#load-custom-files][Load custom files]]
+  - [[#general-emacs-settings][General Emacs settings]]
   - [[#layout--theming][Layout & Theming]]
   - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
+    - [[#emojis-in-buffer][Emojis in buffer]]
+    - [[#all-the-icons][All the icons]]
+    - [[#auto-reload-files][Auto-reload files]]
+    - [[#font-settings][Font settings]]
+    - [[#theme][Theme]]
+    - [[#update-toc-on-save][Update TOC on save]]
 - [[#mode-line][Mode Line]]
   - [[#basic-customization][Basic customization]]
   - [[#highlight-matching-braces][Highlight Matching Braces]]
@@ -38,73 +54,25 @@
 :END:
 
 * General Emacs 
-** Repositories and Packages
-*** Repositories
+** Custom Functions
+*** Determine OS type
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
+;; check is system is macOS
+(defun my/is-macos ()
+	"Return true if system is darwin-based (Mac OS X)"
+	(string-equal system-type "darwin"))
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
-(package-initialize)
-#+END_SRC 
+;; check if system is Windows
+(defun my/is-windows ()
+	"Return true if system is Windows-based"
+  (string-equal system-type "windows-nt"))
 
-*** Setup use-package 
-
-#+BEGIN_SRC emacs-lisp
-(unless (fboundp 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; check if system is GNU/Linux
+(defun my/is-linux ()
+	"Return true is system is GNU/Linux-based"
+  (string-equal system-type "gnu/linux"))
 #+END_SRC
-
-*** Keep .emacs.d clean 
-
-#+BEGIN_SRC emacs-lisp
-;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
-(setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
-      url-history-file (expand-file-name "url/history" user-emacs-directory))
-
-;; Use no-littering to automatically set common paths to the new user-emacs-directory
-(use-package no-littering)
-
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(when (file-exists-p custom-file)
-  (load custom-file))
-#+END_SRC
-
-*** Load custom files
-
-#+BEGIN_SRC emacs-lisp
-(setq load-path (cons "~/.emacs.d/custom" load-path))
-#+END_SRC
-
-*** General Emacs settings
-
-#+BEGIN_SRC emacs-lisp
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-message t)
-(setq visible-bell nil
-	    ring-bell-function (lambda ())) ; Just be quite, Emacs!
-(setq org-startup-with-inline-images t)
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
-(menu-bar-mode -1)          ; Disable the menu bar
-(blink-cursor-mode -1)
-(display-time-mode -1)
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
-(modify-all-frames-parameters	'((internal-border-width . 30)))	
-;; transparency
-;;(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-;;(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
-#+END_SRC
-
-** Layout & Theming
 
 *** Auto resize emacs
 
@@ -149,25 +117,74 @@ If FRAME is omitted or nil, use currently selected frame."
 (global-set-key (kbd "C-x C-x") 'mu-quit-or-restart)
 #+END_SRC
 
-*** Determine OS type
+
+** Repositories & Packages setup
+
+*** Repositories
 
 #+BEGIN_SRC emacs-lisp
-;; check is system is macOS
-(defun my/is-macos ()
-	"Return true if system is darwin-based (Mac OS X)"
-	(string-equal system-type "darwin"))
+(require 'package)
 
-;; check if system is Windows
-(defun my/is-windows ()
-	"Return true if system is Windows-based"
-  (string-equal system-type "windows-nt"))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(package-initialize)
+#+END_SRC 
 
-;; check if system is GNU/Linux
-(defun my/is-linux ()
-	"Return true is system is GNU/Linux-based"
-  (string-equal system-type "gnu/linux"))
+*** Setup use-package 
+
+#+BEGIN_SRC emacs-lisp
+(unless (fboundp 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 #+END_SRC
 
+*** Keep .emacs.d clean 
+
+#+BEGIN_SRC emacs-lisp
+;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
+(setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
+      url-history-file (expand-file-name "url/history" user-emacs-directory))
+
+;; Use no-littering to automatically set common paths to the new user-emacs-directory
+(use-package no-littering)
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+END_SRC
+
+*** Load custom files
+
+#+BEGIN_SRC emacs-lisp
+(setq load-path (cons "~/.emacs.d/custom" load-path))
+#+END_SRC
+
+** General Emacs settings
+
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq visible-bell nil
+	    ring-bell-function (lambda ())) ; Just be quite, Emacs!
+(setq org-startup-with-inline-images t)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+(menu-bar-mode -1)          ; Disable the menu bar
+(blink-cursor-mode -1)
+(display-time-mode -1)
+(fset 'yes-or-no-p 'y-or-n-p)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit) ; Make ESC quit prompts
+(modify-all-frames-parameters	'((internal-border-width . 30)))	
+;; transparency
+;;(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+;;(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+#+END_SRC
+** Layout & Theming
 ** Show keybinding panel (which-key)
 
 #+BEGIN_SRC emacs-lisp
