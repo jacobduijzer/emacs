@@ -1,15 +1,13 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Jacob Duijzer
 
-* General Emacs 
-
-* Heading
+* Table of Contents
 :PROPERTIES:
 :TOC:      :include all :depth 3 :force (depth) :ignore (nothing) :local (nothing)
 :END:
 :CONTENTS:
+- [[#table-of-contents][Table of Contents]]
 - [[#general-emacs][General Emacs]]
-- [[#heading][Heading]]
   - [[#repositories-and-packages][Repositories and Packages]]
   - [[#layout--theming][Layout & Theming]]
   - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
@@ -40,6 +38,7 @@
   - [[#spielerei][Spielerei]]
 :END:
 
+* General Emacs 
 ** Repositories and Packages
 *** Repositories
 
@@ -235,6 +234,7 @@ If FRAME is omitted or nil, use currently selected frame."
 #+END_SRC
 
 #+RESULTS:
+
 
 * Mode Line
 ** Basic customization
