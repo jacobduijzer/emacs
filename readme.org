@@ -3,10 +3,9 @@
 
 * Table of Contents
 :PROPERTIES:
-:TOC:      :include all :depth 3 :force (depth) :ignore (nothing) :local (nothing)
+:TOC:      :include all :depth 3 :force (depth) :ignore (this) :local (nothing)
 :END:
 :CONTENTS:
-- [[#table-of-contents][Table of Contents]]
 - [[#general-emacs][General Emacs]]
   - [[#repositories-and-packages][Repositories and Packages]]
   - [[#layout--theming][Layout & Theming]]
