@@ -19,14 +19,13 @@
     - [[#load-custom-files][Load custom files]]
   - [[#emacs-settings][Emacs settings]]
     - [[#settings][Settings]]
-  - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
+    - [[#auto-reload-files][Auto-reload files]]
+    - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
   - [[#layout--theming][Layout & Theming]]
     - [[#emojis-in-buffer][Emojis in buffer]]
     - [[#all-the-icons][All the icons]]
-    - [[#auto-reload-files][Auto-reload files]]
     - [[#font-settings][Font settings]]
     - [[#theme][Theme]]
-    - [[#update-toc-on-save][Update TOC on save]]
 - [[#mode-line][Mode Line]]
   - [[#basic-customization][Basic customization]]
   - [[#highlight-matching-braces][Highlight Matching Braces]]
@@ -39,13 +38,16 @@
   - [[#ivy][Ivy]]
   - [[#completion-with-vertico][Completion with Vertico]]
   - [[#completion-annotations-with-marginalia][Completion Annotations with Marginalia]]
-  - [[#org-mode][Org mode]]
-  - [[#modern-org-style][Modern Org Style]]
+  - [[#org][Org]]
+    - [[#org-mode][Org mode]]
+    - [[#modern-org-style][modern Org Style]]
+    - [[#update-toc-on-save][Update TOC on save]]
   - [[#fonts-and-bullets][Fonts and bullets]]
-  - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
-  - [[#capture--refile][Capture & Refile]]
-  - [[#blogging-with-hugo][Blogging with Hugo]]
-  - [[#plantuml][PlantUML]]
+    - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
+    - [[#capture--refile][Capture & Refile]]
+  - [[#other-applications][Other Applications]]
+    - [[#blogging-with-hugo][Blogging with Hugo]]
+    - [[#plantuml][PlantUML]]
   - [[#mermaid-and-org-babel-support][Mermaid and org-babel support]]
   - [[#org-roam-try-out][Org-roam try-out]]
   - [[#presentations][Presentations]]
@@ -186,7 +188,14 @@ If FRAME is omitted or nil, use currently selected frame."
 ;;(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 #+END_SRC
 
-** Show keybinding panel (which-key)
+*** Auto-reload files
+
+#+BEGIN_SRC emacs-lisp
+;; Revert buffers when the underlying file has changed
+(global-auto-revert-mode 1)
+#+END_SRC
+
+*** Show keybinding panel (which-key)
 
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
@@ -210,12 +219,6 @@ If FRAME is omitted or nil, use currently selected frame."
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons
   :ensure t)
-#+END_SRC
-
-*** Auto-reload files
-
-#+BEGIN_SRC emacs-lisp
-(global-auto-revert-mode 1)
 #+END_SRC
 
 *** Font settings
@@ -243,16 +246,6 @@ If FRAME is omitted or nil, use currently selected frame."
   (modus-themes-load-vivendi)             ; Dark theme
 	:bind ("<f5>" . modus-themes-toggle))
 #+END_SRC
-
-*** Update TOC on save
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-make-toc
-  :hook (org-mode . org-make-toc-mode))
-#+END_SRC
-
-#+RESULTS:
-
 
 * Mode Line
 ** Basic customization
@@ -502,7 +495,8 @@ folder, otherwise delete a word"
 
 #+RESULTS:
 
-** Org mode
+** Org
+*** Org mode
 
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -561,7 +555,7 @@ folder, otherwise delete a word"
   (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images))
 #+END_SRC
 
-** Modern Org Style
+*** modern Org Style
 
 #+BEGIN_SRC emacs-lisp
                                         ;(modus-themes-load-operandi)
@@ -597,6 +591,15 @@ folder, otherwise delete a word"
 ;; Enable org-modern-mode
 (add-hook 'org-mode-hook #'org-modern-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+#+END_SRC
+
+#+RESULTS:
+
+*** Update TOC on save
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-make-toc
+  :hook (org-mode . org-make-toc-mode))
 #+END_SRC
 
 #+RESULTS:
@@ -647,14 +650,14 @@ folder, otherwise delete a word"
                                         ;(set-face-attribute 'org-column-title nil :background nil)
 #+END_SRC
 
-** Indenting of source in org-mode
+*** Indenting of source in org-mode
 
 #+BEGIN_SRC emacs-lisp
 (setq org-src-preserve-indentation nil 
       org-edit-src-content-indentation 0)
 #+END_SRC
 
-** Capture & Refile
+*** Capture & Refile
 
 #+BEGIN_SRC emacs-lisp
 (setq org-default-notes-file "~/Documents/Notes/inbox.org")
@@ -685,8 +688,9 @@ folder, otherwise delete a word"
 
 	            ))) 
 #+END_SRC
+** Other Applications
 
-** Blogging with Hugo
+*** Blogging with Hugo
 
 #+BEGIN_SRC emacs-lisp
 ;; Github Flavored Markdown exporter for Org Mode
@@ -702,7 +706,7 @@ folder, otherwise delete a word"
   :after ox)
 #+END_SRC
 
-** PlantUML
+*** PlantUML
 
 #+BEGIN_SRC emacs-lisp
 (use-package plantuml-mode
