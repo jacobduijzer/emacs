@@ -37,9 +37,9 @@ currently working on it!
     - [[#commenting-lines][Commenting Lines]]
     - [[#frame-scaling--zooming][Frame Scaling / Zooming]]
     - [[#line-numbering][Line numbering]]
-  - [[#evil-mode][Evil mode]]
-  - [[#ivy][Ivy]]
-  - [[#completion-with-vertico][Completion with Vertico]]
+    - [[#evil-mode][Evil mode]]
+    - [[#ivy][Ivy]]
+    - [[#completion-with-vertico][Completion with Vertico]]
   - [[#completion-annotations-with-marginalia][Completion Annotations with Marginalia]]
   - [[#org][Org]]
     - [[#org-mode][Org mode]]
@@ -327,7 +327,7 @@ Keybindings are: C+M+- and C+M++.
 (global-set-key (kbd "C-c l") 'cc/toggle-line-numbering)
 #+END_SRC
 
-** Evil mode
+*** Evil mode
 
 #+BEGIN_SRC emacs-lisp
 ;; evil mode
@@ -357,7 +357,7 @@ Keybindings are: C+M+- and C+M++.
   )
 #+END_SRC
 
-** Ivy
+*** Ivy
 
 #+BEGIN_SRC emacs-lisp
 (use-package ivy :demand
@@ -375,7 +375,7 @@ Keybindings are: C+M+- and C+M++.
   )
 #+END_SRC
 
-** Completion with Vertico
+*** Completion with Vertico
 
 #+BEGIN_SRC emacs-lisp
 (defun dw/minibuffer-backward-kill (arg)
@@ -635,10 +635,6 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
   :config
   (org-roam-setup))
 #+END_SRC
-
-#+RESULTS:
-: completion-at-point
-
 ** Other Applications
 *** Blogging with Hugo
 
