@@ -40,7 +40,7 @@ currently working on it!
     - [[#evil-mode][Evil mode]]
     - [[#ivy][Ivy]]
     - [[#completion-with-vertico][Completion with Vertico]]
-  - [[#completion-annotations-with-marginalia][Completion Annotations with Marginalia]]
+    - [[#completion-annotations-with-marginalia][Completion Annotations with Marginalia]]
   - [[#org][Org]]
     - [[#org-mode][Org mode]]
     - [[#modern-org-style][modern Org Style]]
@@ -404,7 +404,7 @@ folder, otherwise delete a word"
   (vertico-mode))
 #+END_SRC
 
-** Completion Annotations with Marginalia
+*** Completion Annotations with Marginalia
 
 #+BEGIN_SRC emacs-lisp
 (use-package marginalia
