@@ -33,10 +33,10 @@ currently working on it!
     - [[#mode-line][Mode Line]]
     - [[#matching-parentheses][Matching parentheses]]
   - [[#editing-configuration][Editing Configuration]]
-  - [[#tabs--spaces][Tabs & Spaces]]
-  - [[#commenting-lines][Commenting Lines]]
-  - [[#frame-scaling--zooming][Frame Scaling / Zooming]]
-  - [[#line-numbering][Line numbering]]
+    - [[#tabs--spaces][Tabs & Spaces]]
+    - [[#commenting-lines][Commenting Lines]]
+    - [[#frame-scaling--zooming][Frame Scaling / Zooming]]
+    - [[#line-numbering][Line numbering]]
   - [[#evil-mode][Evil mode]]
   - [[#ivy][Ivy]]
   - [[#completion-with-vertico][Completion with Vertico]]
@@ -45,10 +45,9 @@ currently working on it!
     - [[#org-mode][Org mode]]
     - [[#modern-org-style][modern Org Style]]
     - [[#update-toc-on-save][Update TOC on save]]
-    - [[#fonts-and-bullets][Fonts and bullets]]
     - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
     - [[#capture--refile][Capture & Refile]]
-    - [[#org-roam-try-out][Org-roam try-out]]
+  - [[#org-roam][Org Roam]]
   - [[#other-applications][Other Applications]]
     - [[#blogging-with-hugo][Blogging with Hugo]]
     - [[#plantuml][PlantUML]]
@@ -284,7 +283,7 @@ If FRAME is omitted or nil, use currently selected frame."
 #+END_SRC
 
 ** Editing Configuration
-** Tabs & Spaces
+*** Tabs & Spaces
 
 #+BEGIN_SRC emacs-lisp
                                         ; set tab with to 2 spaces
@@ -295,14 +294,14 @@ If FRAME is omitted or nil, use currently selected frame."
 (setq-default indent-tabs-mode nil)
 #+END_SRC
 
-** Commenting Lines
+*** Commenting Lines
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
 
-** Frame Scaling / Zooming
+*** Frame Scaling / Zooming
 Keybindings are: C+M+- and C+M++.
 
 #+BEGIN_SRC emacs-lisp
@@ -314,7 +313,7 @@ Keybindings are: C+M+- and C+M++.
 (global-set-key (kbd "C-M--") 'default-text-scale-decrease)
 #+END_SRC
 
-** Line numbering
+*** Line numbering
 #+BEGIN_SRC emacs-lisp
 (defun cc/toggle-line-numbering ()
   "Toggle line numbering between absolute and relative."
@@ -523,52 +522,6 @@ folder, otherwise delete a word"
   :hook (org-mode . org-make-toc-mode))
 #+END_SRC
 
-*** Fonts and bullets
-
-#+BEGIN_SRC emacs-lisp
-                                        ;(use-package org-superstar
-                                        ;  :after org
-                                        ;  :hook (org-mode . org-superstar-mode)
-                                        ;  :custom
-                                        ;  ;; (org-superstar-remove-leading-stars t)
-                                        ;  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")))
-                                        ;
-;;; Replace list hyphen with dot
-;;; (font-lock-add-keywords 'org-mode
-;;;                         '(("^ *\\([-]\\) "
-;;;                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-                                        ;
-;;; Increase the size of various headings
-                                        ;(set-face-attribute 'org-document-title nil :font "JetBrainsMono Nerd Font" :weight 'bold :height 1.3)
-                                        ;(dolist (face '((org-level-1 . 1.2)
-                                        ;                (org-level-2 . 1.1)
-                                        ;                (org-level-3 . 1.05)
-                                        ;                (org-level-4 . 1.0)
-                                        ;                (org-level-5 . 1.1)
-                                        ;                (org-level-6 . 1.1)
-                                        ;                (org-level-7 . 1.1)
-                                        ;                (org-level-8 . 1.1)))
-                                        ;  (set-face-attribute (car face) nil :font "JetBrainsMono Nerd Font" :weight 'medium :height (cdr face)))
-                                        ;
-;;; Make sure org-indent face is available
-                                        ;(require 'org-indent)
-                                        ;
-;;; Ensure that anything that should be fixed-pitch in Org files appears that way
-                                        ;(set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-                                        ;(set-face-attribute 'org-table nil  :inherit 'fixed-pitch)
-                                        ;(set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-                                        ;(set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-                                        ;(set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
-                                        ;(set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-                                        ;(set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-                                        ;(set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-                                        ;(set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-                                        ;
-;;; Get rid of the background on column views
-                                        ;(set-face-attribute 'org-column nil :background nil)
-                                        ;(set-face-attribute 'org-column-title nil :background nil)
-#+END_SRC
-
 *** Indenting of source in org-mode
 
 #+BEGIN_SRC emacs-lisp
@@ -608,7 +561,7 @@ folder, otherwise delete a word"
 	            ))) 
 #+END_SRC
 
-*** Org-roam try-out
+** Org Roam
 Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Crafters]].
 
 #+BEGIN_SRC emacs-lisp
