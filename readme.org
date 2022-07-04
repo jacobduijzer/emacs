@@ -45,7 +45,7 @@ currently working on it!
     - [[#org-mode][Org mode]]
     - [[#modern-org-style][modern Org Style]]
     - [[#update-toc-on-save][Update TOC on save]]
-  - [[#fonts-and-bullets][Fonts and bullets]]
+    - [[#fonts-and-bullets][Fonts and bullets]]
     - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
     - [[#capture--refile][Capture & Refile]]
     - [[#org-roam-try-out][Org-roam try-out]]
@@ -516,8 +516,6 @@ folder, otherwise delete a word"
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 #+END_SRC
 
-#+RESULTS:
-
 *** Update TOC on save
 
 #+BEGIN_SRC emacs-lisp
@@ -525,9 +523,7 @@ folder, otherwise delete a word"
   :hook (org-mode . org-make-toc-mode))
 #+END_SRC
 
-#+RESULTS:
-
-** Fonts and bullets
+*** Fonts and bullets
 
 #+BEGIN_SRC emacs-lisp
                                         ;(use-package org-superstar
