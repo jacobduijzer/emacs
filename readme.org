@@ -48,6 +48,9 @@ currently working on it!
     - [[#indenting-of-source-in-org-mode][Indenting of source in org-mode]]
     - [[#capture--refile][Capture & Refile]]
   - [[#org-roam][Org Roam]]
+    - [[#basic-config][Basic config]]
+    - [[#capture-templates][Capture templates]]
+    - [[#dailies-templates][Dailies templates]]
   - [[#other-applications][Other Applications]]
     - [[#blogging-with-hugo][Blogging with Hugo]]
     - [[#plantuml][PlantUML]]
@@ -562,6 +565,8 @@ folder, otherwise delete a word"
 #+END_SRC
 
 ** Org Roam
+
+*** Basic config 
 Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Crafters]].
 
 #+BEGIN_SRC emacs-lisp
@@ -588,13 +593,12 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
   ;;    :if-new (file+head "work/${project}/meetings/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %<%Y-%m-%d %a %R>\n#+filetags: contacts\n#+startup: showall\n\n")
 	;;		:unarrowed t)
 	;;   ))
-  (org-roam-dailies-directory "~/Documents/org/org-daily/")
   ;;(org-roam-dailies-capture-templates
   ;;   '(("d" "default" entry
   ;;      #'org-roam-capture--get-point
   ;;      "* %?"
-  ;;      :file-name "Journal/%<%Y-%m-%d>"
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
+  ;;      :target "Journal/%<%Y-%m-%d>"
+  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
   ;;     ("t" "Task" entry
   ;;      #'org-roam-capture--get-point
   ;;      "* TODO %?\n  %U\n  %a\n  %i"
@@ -635,6 +639,23 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
   :config
   (org-roam-setup))
 #+END_SRC
+
+*** Capture templates
+
+#+BEGIN_SRC emacs-lisp
+#+END_SRC
+
+*** Dailies templates
+
+#+BEGIN_SRC emacs-lisp
+(setq org-roam-dailies-directory "~/Documents/org/org-daily/")
+(setq org-roam-dailies-capture-templates
+(let ((head "#+title: %<%Y-%m-%d>\n#+startup: showall\n"))
+`(("d" "default" entry "%?"
+:target (file "%<%Y-%m-%d>")
+:head head))))
+#+END_SRC
+
 ** Other Applications
 *** Blogging with Hugo
 
@@ -773,9 +794,13 @@ org-present is the package I use for giving presentations in Emacs. I like it be
 #+BEGIN_SRC emacs-lisp
 ;; Reveal.js + Org mode
 (require 'ox-reveal)
-(setq org-reveal-root "file:///home/jacob/projects/github/presentations/reveal.js")
-(setq org-reveal-title-slide nil)
+;;(setq org-reveal-root "file:///home/jacob/projects/github/presentations/reveal.js")
+(setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+(setq org-reveal-title-slide t)
 #+END_SRC
+
+#+RESULTS:
+: https://cdn.jsdelivr.net/npm/reveal.js
 
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.sonic-pi.el/")
