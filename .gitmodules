@@ -1,0 +1,3 @@
+[submodule "custom/bicep-mode"]
+	path = custom/bicep-mode
+	url = git@github.com:christiaan-janssen/bicep-mode.git

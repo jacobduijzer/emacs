@@ -2,13 +2,14 @@
 #+AUTHOR: Jacob Duijzer
 
 This is my current Emacs configuration. It is still a bit messy,
-currently working on it!
+currently working on it! Test
 
 * Table of Contents
 :PROPERTIES:
 :TOC:      :include all :depth 4 :force (depth) :ignore (this) :local (nothing)
 :END:
 :CONTENTS:
+- [[#todo-list][TODO-List]]
 - [[#general-emacs][General Emacs]]
   - [[#custom-functions][Custom Functions]]
     - [[#determine-os-type][Determine OS type]]
@@ -24,6 +25,7 @@ currently working on it!
     - [[#settings][Settings]]
     - [[#auto-reload-files][Auto-reload files]]
     - [[#show-keybinding-panel-which-key][Show keybinding panel (which-key)]]
+    - [[#default-apps][Default apps]]
   - [[#layout--theming][Layout & Theming]]
     - [[#emojis-in-buffer][Emojis in buffer]]
     - [[#all-the-icons][All the icons]]
@@ -54,33 +56,34 @@ currently working on it!
   - [[#other-applications][Other Applications]]
     - [[#blogging-with-hugo][Blogging with Hugo]]
     - [[#plantuml][PlantUML]]
+    - [[#http-client][Http Client]]
+    - [[#bicep][Bicep]]
     - [[#mermaid-and-org-babel-support][Mermaid and org-babel support]]
     - [[#presentations][Presentations]]
     - [[#markdown][Markdown]]
     - [[#reveal-presentations][Reveal presentations]]
+    - [[#projectile][Projectile]]
+    - [[#latex-pdf][Latex PDF]]
   - [[#spielerei][Spielerei]]
 :END:
+
+* TODO-List
+- [X] Restructure org / org-roam / org-capture file locations
+- [X] Copy all files to dropbox
+- [X] Backup directory to NAS
 
 * General Emacs 
 ** Custom Functions
 *** Determine OS type
 
 #+BEGIN_SRC emacs-lisp
-;; check is system is macOS
-(defun my/is-macos ()
-	"Return true if system is darwin-based (Mac OS X)"
-	(string-equal system-type "darwin"))
-
-;; check if system is Windows
-(defun my/is-windows ()
-	"Return true if system is Windows-based"
-  (string-equal system-type "windows-nt"))
-
-;; check if system is GNU/Linux
-(defun my/is-linux ()
-	"Return true is system is GNU/Linux-based"
-  (string-equal system-type "gnu/linux"))
+(defconst on-linux (string-equal system-type "gnu/linux"))
+(defconst on-windows (string-equal system-type "windows-nt"))
+(defconst on-mac (string-equal system-type "darwin"))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 *** Auto resize emacs
 
@@ -214,6 +217,18 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq which-key-idle-delay 0.3))
 #+END_SRC
 
+*** Default apps
+
+#+BEGIN_SRC emacs-lisp
+'(org-file-apps
+	(quote
+		((auto-mode . emacs)
+		("\\.x?html?\\'" . "/usr/bin/vivaldi-stable %s"))))
+#+END_SRC
+
+#+RESULTS:
+| org-file-apps | '((auto-mode . emacs) (\.x?html?\' . /usr/bin/vivaldi-stable %s)) |
+
 ** Layout & Theming
 *** Emojis in buffer
 
@@ -234,9 +249,9 @@ If FRAME is omitted or nil, use currently selected frame."
 
 #+BEGIN_SRC emacs-lisp
 (defvar runemacs/default-font-size 80)
-(when (my/is-linux)
+(when on-linux
   (set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height runemacs/default-font-size))
-(when (my/is-windows)
+(when on-windows
   (set-face-attribute 'default nil :font "JetBrainsMONO NF" :height runemacs/default-font-size))
 #+END_SRC
 
@@ -418,8 +433,6 @@ folder, otherwise delete a word"
   (marginalia-mode))
 #+END_SRC
 
-#+RESULTS:
-
 ** Org
 *** Org mode
 
@@ -535,18 +548,41 @@ folder, otherwise delete a word"
 *** Capture & Refile
 
 #+BEGIN_SRC emacs-lisp
-(setq org-default-notes-file "~/Documents/Notes/inbox.org")
+;;(setq org-agenda-files '("~/Documents/org/org-capture"))
+;;(setq org-agenda-text-search-extra-files
+;;	'(agenda-archives
+;;		"~/Documents/org/org-capture/Coaching"))(setq org-agenda-file-regexp "\\`[^.].*\\.org$\\|.txt$\\'") ;Looks for .org and .txt files
+(defun load-org-agenda-files-recursively (dir) "Find all directories in DIR."
+        (unless (file-directory-p dir) (error "Not a directory `%s'" dir))
+        (unless (equal (directory-files dir nil org-agenda-file-regexp t) nil)
+          (add-to-list 'org-agenda-files dir)
+          )
+        (dolist (file (directory-files dir nil nil t))
+          (unless (member file '("." ".."))
+            (let ((file (concat dir file "/")))
+              (when (file-directory-p file)
+                (load-org-agenda-files-recursively file)
+                )
+              )
+            )
+          )
+        )
+(load-org-agenda-files-recursively "~/Documents/org/org-capture/") ;; This is the root where the search starts
+
+
+(setq org-default-notes-file "~/Documents/org/org-capture/inbox.org")
 (setq org-reverse-note-order nil)
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes (quote confirm))
 (setq org-blank-before-new-entry nil)
 (setq org-refile-use-cache nil)
-(setq org-refile-targets '((("~/Documents/Notes/inbox.org"
-                             "~/Documents/Notes/personal.org"
-                             "~/Documents/Notes/farmtrace.org"
-                             "~/Documents/Notes/itcare.org"
-                             "~/Documents/Notes/rockstars.org") . (:maxlevel . 3))))
+(setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+;;(setq org-refile-targets '((("~/Documents/org/org-capture/inbox.org"
+;;                             "~/Documents/org/org-capture/personal.org"
+;;                             "~/Documents/org/org-capture/farmtrace.org"
+;;                             "~/Documents/org/org-capture/itcare.org"
+;;                             "~/Documents/org/org-capture/rockstars.org") . (:maxlevel . 3))))
 
 (global-set-key (kbd "C-c c") 'org-capture)
 
@@ -560,7 +596,8 @@ folder, otherwise delete a word"
 						   "* MEETING %? %U\n  With: \n" :empty-lines 1)
               ("s" "Standup" entry (file+datetree org-default-notes-file)
 						   "* STANDUP %U\n Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n" :prepend t :empty-lines 1)
-
+							("c" "Coaching" entry (file+datetree org-default-notes-file)
+							 "* COACHING %U\n With: %?\n\n*** 1. KICKOFF: What's on your mind?\n\n*** 2. AWE: ...and what else?\n\n*** 3. FOCUS: What's the real challenge here for you?\n\n*** 4. FOUNDATION: What do you want?\n\n*** 5. LAZY: How can I help?\n\n*** 6. PRIO: If you are saying 'yes' to this, what are you saying 'no' to?\n\n*** 7. LEARNING: What was most useful for you?\n" :prepent t :empty-lines 1)
 	            ))) 
 #+END_SRC
 
@@ -579,82 +616,63 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
 	:custom
 	(org-roam-directory "~/Documents/org/org-roam")
 	(org-roam-completion-everywhere t)
-	;;(org-roam-capture-templates
-	;; '(
-  ;;   ("d" "default" plain "%?"
-  ;;    :if-new (file+head "personal/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %<%Y-%m-%d %a %R>\n#+startup: showall\n\n")
-	;;		:unarrowed t)
-	;;	 ("c" "Contact" plain
-  ;;    "* Details \n\n- Name: ${name}\n- Email: \n- Phone: \n\n* Information"
-  ;;    :if-new (file+head "work/${project}/contacts/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %<%Y-%m-%d %a %R>\n#+filetags: contacts\n#+startup: showall\n\n")
-	;;		:unarrowed t)
-  ;;   ("m" "Meeting" plain
-  ;;    "* Meeting ${subject}\nWith: ${with}\n\n%?"
-  ;;    :if-new (file+head "work/${project}/meetings/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %<%Y-%m-%d %a %R>\n#+filetags: contacts\n#+startup: showall\n\n")
-	;;		:unarrowed t)
-	;;   ))
-  ;;(org-roam-dailies-capture-templates
-  ;;   '(("d" "default" entry
-  ;;      #'org-roam-capture--get-point
-  ;;      "* %?"
-  ;;      :target "Journal/%<%Y-%m-%d>"
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
-  ;;     ("t" "Task" entry
-  ;;      #'org-roam-capture--get-point
-  ;;      "* TODO %?\n  %U\n  %a\n  %i"
-  ;;      :file-name "Journal/%<%Y-%m-%d>"
-  ;;      :olp ("Tasks")
-  ;;      :empty-lines 1
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-  ;;     ("j" "journal" entry
-  ;;      #'org-roam-capture--get-point
-  ;;      "* %<%I:%M %p> - Journal  :journal:\n\n%?\n\n"
-  ;;      :file-name "Journal/%<%Y-%m-%d>"
-  ;;      :olp ("Log")
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-  ;;     ("l" "log entry" entry
-  ;;      #'org-roam-capture--get-point
-  ;;      "* %<%I:%M %p> - %?"
-  ;;      :file-name "Journal/%<%Y-%m-%d>"
-  ;;      :olp ("Log")
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")
-  ;;     ("m" "meeting" entry
-  ;;      #'org-roam-capture--get-point
-  ;;      "* %<%I:%M %p> - %^{Meeting Title}  :meetings:\n\n%?\n\n"
-  ;;      :file-name "Journal/%<%Y-%m-%d>"
-  ;;      :olp ("Log")
-  ;;      :head "#+title: %<%Y-%m-%d %a>\n\n[[roam:%<%Y-%B>]]\n\n")))
-  :bind (
-         ("C-c n l"   . org-roam)
-         ("C-c n f"   . org-roam-find-file)
-         ("C-c n d"   . org-roam-dailies-find-date)
-         ("C-c n c"   . org-roam-dailies-capture-today)
-         ("C-c n C r" . org-roam-dailies-capture-tomorrow)
-         ("C-c n t"   . org-roam-dailies-find-today)
-         ("C-c n y"   . org-roam-dailies-find-yesterday)
-         ("C-c n r"   . org-roam-dailies-find-tomorrow)
-         ("C-c n g"   . org-roam-graph)
-	       :map org-mode-map
-	       ("C-M-i" . completion-at-point))
-  :config
+	:bind (
+		("C-c n l" . org-roam-buffer-toggle)
+		("C-c n f" . org-roam-node-find)
+		("C-c n i" . org-roam-node-insert)
+	)
+	:bind-keymap
+	("C-c n d" . org-roam-dailies-map)
+	:config
+	(require 'org-roam-dailies)
+	(org-roam-db-autosync-mode)
   (org-roam-setup))
 #+END_SRC
+
+#+RESULTS:
+: completion-at-point
 
 *** Capture templates
 
 #+BEGIN_SRC emacs-lisp
+(setq org-roam-capture-templates
+	'(("m" "main" plain
+			"%?"
+		:if-new (file+head "main/%<%Y-%m-%d>-${slug}.org"
+                            "#+title: ${title}\n")
+         :immediate-finish t
+         :unnarrowed t)
+        ("r" "reference" plain "%?"
+         :if-new
+         (file+head "reference/${title}.org" "#+title: ${title}\n")
+         :immediate-finish t
+         :unnarrowed t)
+        ("a" "article" plain "%?"
+         :if-new
+         (file+head "articles/${title}.org" "#+title: ${title}\n#+filetags: :article:\n")
+         :immediate-finish t
+         :unnarrowed t)))
 #+END_SRC
+
+#+RESULTS:
+| m | main | plain | %? | :if-new | (file+head main/%<%Y-%m-%d>-${slug}.org #+title: ${title} |
 
 *** Dailies templates
 
 #+BEGIN_SRC emacs-lisp
-(setq org-roam-dailies-directory "~/Documents/org/org-daily/")
 (setq org-roam-dailies-capture-templates
-(let ((head "#+title: %<%Y-%m-%d>\n#+startup: showall\n"))
-`(("d" "default" entry "%?"
-:target (file "%<%Y-%m-%d>")
-:head head))))
+	'(("d" "default" entry "* %? [%<%H:%M>]"
+			:if-new (file+head "%<Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))
+))
+;;(setq org-roam-dailies-capture-templates
+;;(let ((head "#+title: %<%Y-%m-%d>\n#+startup: showall\n"))
+;;`(("d" "default" entry "%?"
+;;:target (file "%<%Y-%m-%d>")
+;;:head head))))
 #+END_SRC
+
+#+RESULTS:
+| d | default | entry | * %<%I:%M %p> %? | :if-new | (file+head %<Y-%m-%d>.org #+title: %<%Y-%m-%d> |
 
 ** Other Applications
 *** Blogging with Hugo
@@ -691,6 +709,36 @@ Based on the videos of [[https://www.youtube.com/watch?v=YxgA5z2R08I][System Cra
 (with-eval-after-load 'ox-hugo
   (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
 #+END_SRC
+
+*** Http Client
+
+#+BEGIN_SRC lisp
+(use-package restclient
+  :ensure t :defer t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.rcl$" . restclient-mode))
+  (add-to-list 'auto-mode-alist '("\\.http$" . restclient-mode))
+  :config
+  ;; keybindings
+  (evil-define-key 'normal restclient-mode-map
+	(kbd "M-n") 'restclient-jump-next
+	(kbd "M-p") 'restclient-jump-prev
+	(kbd "TAB") 'restclient-toggle-body-visibility
+	(concat my-leader "cv") 'restclient-http-send-current-stay-in-window
+	(concat my-leader "cc") 'restclient-http-send-current)
+)
+#+END_SRC
+
+*** Bicep
+
+#+BEGIN_SRC emacs-lisp
+
+	opackage-install 'projectile))
+(use-package "bicep-mode"
+  :load-path "~/.emacs.d/custom/bicep-mode")
+#+END_SRC
+
+#+RESULTS:
 
 *** Mermaid and org-babel support
 
@@ -799,9 +847,6 @@ org-present is the package I use for giving presentations in Emacs. I like it be
 (setq org-reveal-title-slide t)
 #+END_SRC
 
-#+RESULTS:
-: https://cdn.jsdelivr.net/npm/reveal.js
-
 #+BEGIN_SRC emacs-lisp
 ;;(add-to-list 'load-path "~/.sonic-pi.el/")
 ;;(require 'sonic-pi)
@@ -814,6 +859,120 @@ org-present is the package I use for giving presentations in Emacs. I like it be
 ;;            (setq sonic-pi-path "/home/jacob/projects/others/sonic-pi/")
 ;;            (define-key ruby-mode-map "\C-c\C-b" 'sonic-pi-stop-all)))
 #+END_SRC
+
+*** Projectile
+
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+	:ensure t
+	:pin melpa-stable
+	:init
+  (projectile-mode +1)
+	:bind (:map projectile-mode-map
+		("s-p" . projectile-command-map)
+		("C-c p" . projectile-command-map)))
+#+END_SRC
+
+#+RESULTS:
+: projectile-command-map
+
+*** Latex PDF
+
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-pdf-process
+          '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+
+
+
+    (unless (boundp 'org-latex-classes)
+      (setq org-latex-classes nil))
+
+    (add-to-list 'org-latex-classes
+                 '("ethz"
+                   "\\documentclass[a4paper,11pt,titlepage]{memoir}
+    \\usepackage[utf8]{inputenc}
+    \\usepackage[T1]{fontenc}
+    \\usepackage{fixltx2e}
+    \\usepackage{graphicx}
+    \\usepackage{longtable}
+    \\usepackage{float}
+    \\usepackage{wrapfig}
+    \\usepackage{rotating}
+    \\usepackage[normalem]{ulem}
+    \\usepackage{amsmath}
+    \\usepackage{textcomp}
+    \\usepackage{marvosym}
+    \\usepackage{wasysym}
+    \\usepackage{amssymb}
+    \\usepackage{hyperref}
+    \\usepackage{mathpazo}
+    \\usepackage{color}
+    \\usepackage{enumerate}
+    \\definecolor{bg}{rgb}{0.95,0.95,0.95}
+    \\tolerance=1000
+          [NO-DEFAULT-PACKAGES]
+          [PACKAGES]
+          [EXTRA]
+    \\linespread{1.1}
+    \\hypersetup{pdfborder=0 0 0}"
+                   ("\\chapter{%s}" . "\\chapter*{%s}")
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                   ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+
+    (add-to-list 'org-latex-classes
+                 '("article"
+                   "\\documentclass[11pt,a4paper]{article}
+    \\usepackage[utf8]{inputenc}
+    \\usepackage[T1]{fontenc}
+    \\usepackage{fixltx2e}
+    \\usepackage{graphicx}
+    \\usepackage{longtable}
+    \\usepackage{float}
+    \\usepackage{wrapfig}
+    \\usepackage{rotating}
+    \\usepackage[normalem]{ulem}
+    \\usepackage{amsmath}
+    \\usepackage{textcomp}
+    \\usepackage{marvosym}
+    \\usepackage{wasysym}
+    \\usepackage{amssymb}
+    \\usepackage{hyperref}
+    \\usepackage{mathpazo}
+    \\usepackage{color}
+    \\usepackage{enumerate}
+    \\definecolor{bg}{rgb}{0.95,0.95,0.95}
+    \\tolerance=1000
+          [NO-DEFAULT-PACKAGES]
+          [PACKAGES]
+          [EXTRA]
+    \\linespread{1.1}
+    \\hypersetup{pdfborder=0 0 0}"
+                   ("\\section{%s}" . "\\section*{%s}")
+                   ("\\subsection{%s}" . "\\subsection*{%s}")
+                   ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                   ("\\paragraph{%s}" . "\\paragraph*{%s}")))
+
+
+    (add-to-list 'org-latex-classes '("ebook"
+                                      "\\documentclass[11pt, oneside]{memoir}
+    \\setstocksize{9in}{6in}
+    \\settrimmedsize{\\stockheight}{\\stockwidth}{*}
+    \\setlrmarginsandblock{2cm}{2cm}{*} % Left and right margin
+    \\setulmarginsandblock{2cm}{2cm}{*} % Upper and lower margin
+    \\checkandfixthelayout
+    % Much more laTeX code omitted
+    "
+                                      ("\\chapter{%s}" . "\\chapter*{%s}")
+                                      ("\\section{%s}" . "\\section*{%s}")
+                                      ("\\subsection{%s}" . "\\subsection*{%s}")))
+#+END_SRC
+
+#+RESULTS:
+| ebook | \documentclass[11pt, oneside]{memoir} |
 
 ** Spielerei
 
