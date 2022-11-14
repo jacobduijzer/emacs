@@ -10,6 +10,7 @@
       - [[#garbage-collection][Garbage collection]]
       - [[#native-compile][Native Compile]]
     - [[#keep-emacs-dir-clean][Keep emacs dir clean]]
+    - [[#restart-emacs][Restart Emacs]]
     - [[#evil-mode][Evil mode]]
     - [[#general-keybindings][General Keybindings]]
     - [[#custom-functions][Custom functions]]
@@ -47,6 +48,9 @@
   - [[#other-applications][Other applications]]
     - [[#blogging-with-hugo][Blogging with Hugo]]
     - [[#plantuml][PlantUML]]
+    - [[#mermaid][Mermaid]]
+    - [[#rust][Rust]]
+    - [[#][]]
 
 * Emacs Configuration
 
@@ -121,27 +125,38 @@ Makes startup faster by reducing the frequency of garbage collection
 	(load custom-file))
 #+END_SRC
 
+*** Restart Emacs
+
+#+BEGIN_SRC emacs-lisp
+(defun save-and-kill-this-buffer()(interactive)(save-buffer)(kill-current-buffer))
+(setq confirm-kill-emacs #'yes-or-no-p)
+#+END_SRC
+
 #+RESULTS:
-: t
+: yes-or-no-p
 
 *** Evil mode
 Evil is an extensible ‘vi’ layer for Emacs. It emulates the main features of Vim, and provides facilities for writing custom extensions.  Evil Collection is also installed since it adds ‘evil’ bindings to parts of Emacs that the standard Evil package does not cover, such as: calenda, help-mode adn ibuffer.
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil
-  :init      ;; tweak evil's configuration before loading it
-  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
-  (setq evil-want-keybinding nil)
-  (setq evil-vsplit-window-right t)
-  (setq evil-split-window-below t)
-	(setq evil-respect-visual-line-mode t)
-  (evil-mode))
-(use-package evil-collection
-  :after evil
-  :config
-  (setq evil-collection-mode-list '(dashboard dired ibuffer))
-  (evil-collection-init))
+    :init      ;; tweak evil's configuration before loading it
+    (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+    (setq evil-want-keybinding nil)
+    (setq evil-vsplit-window-right t)
+    (setq evil-split-window-below t)
+    (setq evil-respect-visual-line-mode t)
+    (evil-mode))
+    (use-package evil-collection
+    :after evil
+    :config
+    (setq evil-collection-mode-list '(dashboard dired ibuffer))
+(evil-ex-define-cmd "wq" 'save-and-kill-this-buffer)
+(evil-collection-init))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 *** General Keybindings
 General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have grown accustomed to using SPC as the prefix key.  General makes setting keybindings (especially with SPC) much easier.  All of the keybindings we set later in the config depend on general being loaded.
@@ -613,6 +628,7 @@ TODO: change to a better, more functional mood line.
 	:ensure t
 	:after ox)
 #+END_SRC
+
 *** PlantUML
 
 #+BEGIN_SRC emacs-lisp
@@ -631,10 +647,28 @@ TODO: change to a better, more functional mood line.
 		(add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
 #+END_SRC
 
+*** Mermaid
+
+#+BEGIN_SRC emacs-lisp
+(use-package ob-mermaid
+    :ensure t)
+
+(setq ob-mermaid-cli-path "/usr/bin/mmdc")
+#+END_SRC
+
+*** Rust
+
+#+BEGIN_SRC emacs-lisp
+(require 'rust-mode)
+  (add-hook 'rust-mode-hook
+    (lambda () (setq indent-tabs-mode nil)))
+(setq rust-format-on-save t)
+(add-hook 'rust-mode-hook
+    (lambda () (prettify-symbols-mode)))
+(define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
+#+END_SRC
+
+*** 
+
 #+RESULTS:
-| mermaid | :raw      | t |            |   |
-| audio   | :raw      | t |            |   |
-| katex   | :raw      | t |            |   |
-| mark    | :trim-pre | t | :trim-post | t |
-| tikzjax | :raw      | t |            |   |
-| video   | :raw      | t |            |   |
+: rust-run
