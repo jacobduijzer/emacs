@@ -40,6 +40,7 @@ flycheck_*.el
 
 # projectiles files
 .projectile
+projectile-bookmarks.eld
 
 # directory configuration
 .dir-locals.el
@@ -50,3 +51,4 @@ flycheck_*.el
 # auto-generated .el
 custom.el
 readme.el
+
