@@ -690,6 +690,8 @@ TODO: change to a better, more functional mood line.
 
 *** Magit
 
+The best Git implementation for Emacs.
+
 #+BEGIN_SRC emacs-lisp
 (use-package magit
     :ensure t)
