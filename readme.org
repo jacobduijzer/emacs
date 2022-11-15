@@ -1,7 +1,7 @@
 #+TITLE: Emacs Configurationj
 #+AUTHOR: Jacob Duijzer
 
-* TOC                                                                 :TOC_4:
+* Table Of Contents                                                   :TOC_4:
 - [[#emacs-configuration][Emacs Configuration]]
   - [[#startup][Startup]]
     - [[#setup-packageel-to-work-with-melpa][Setup Package.el To Work With MELPA]]
