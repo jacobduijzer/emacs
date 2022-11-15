@@ -2,60 +2,57 @@
 #+AUTHOR: Jacob Duijzer
 
 * Table Of Contents                                                   :TOC_4:
-- [[#emacs-configuration][Emacs Configuration]]
-  - [[#startup][Startup]]
+- [[#startup][Startup]]
     - [[#setup-packageel-to-work-with-melpa][Setup Package.el To Work With MELPA]]
-    - [[#use-package][Use-package]]
-    - [[#faster-startup][Faster startup]]
-      - [[#garbage-collection][Garbage collection]]
-      - [[#native-compile][Native Compile]]
-    - [[#keep-emacs-dir-clean][Keep emacs dir clean]]
-    - [[#restart-emacs][Restart Emacs]]
-    - [[#evil-mode][Evil mode]]
-    - [[#general-keybindings][General Keybindings]]
-    - [[#custom-functions][Custom functions]]
-      - [[#determine-os-type][Determine OS type]]
-      - [[#auto-resize-emacs][Auto resize emacs]]
-      - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
-      - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
-      - [[#splits-and-window-controls][Splits and window controls]]
-    - [[#dashboard][Dashboard]]
-      - [[#configuring-dashboard][Configuring Dashboard]]
-      - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
-  - [[#configuration-layout-theme-fonts][Configuration, Layout, theme, fonts]]
-    - [[#general-configuration][General configuration]]
-    - [[#modeline][Modeline]]
-    - [[#all-the-icons][All the icons]]
-    - [[#fonts][Fonts]]
-    - [[#theme][Theme]]
-  - [[#editing][Editing]]
-    - [[#code-formatting][Code formatting]]
-    - [[#commenting-lines][Commenting lines]]
-    - [[#frame-scaling--zooming][Frame scaling / zooming]]
-    - [[#line-numbers][Line numbers]]
-  - [[#etc][Etc]]
-    - [[#ivy][Ivy]]
-    - [[#vterm][VTerm]]
-    - [[#projectile][Projectile]]
-    - [[#org-mode][Org mode]]
-      - [[#org][Org]]
-      - [[#org-definitions][Org definitions]]
-      - [[#source-code-block-syntax-highlighting][Source Code Block Syntax Highlighting]]
-      - [[#bullets][Bullets]]
-      - [[#automatically-create-toc][Automatically create TOC]]
-      - [[#yasnippet][YASnippet]]
-    - [[#org-capture--refile][Org Capture & refile]]
-    - [[#which-key][Which key]]
-  - [[#other-applications][Other applications]]
-    - [[#blogging-with-hugo][Blogging with Hugo]]
-    - [[#plantuml][PlantUML]]
-    - [[#mermaid][Mermaid]]
-    - [[#rust][Rust]]
-    - [[#magit][Magit]]
+  - [[#use-package][Use-package]]
+  - [[#faster-startup][Faster startup]]
+    - [[#garbage-collection][Garbage collection]]
+    - [[#native-compile][Native Compile]]
+  - [[#keep-emacs-dir-clean][Keep emacs dir clean]]
+  - [[#restart-emacs][Restart Emacs]]
+  - [[#evil-mode][Evil mode]]
+  - [[#general-keybindings][General Keybindings]]
+  - [[#custom-functions][Custom functions]]
+    - [[#determine-os-type][Determine OS type]]
+    - [[#auto-resize-emacs][Auto resize emacs]]
+    - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
+    - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
+    - [[#splits-and-window-controls][Splits and window controls]]
+  - [[#dashboard][Dashboard]]
+    - [[#configuring-dashboard][Configuring Dashboard]]
+    - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
+- [[#configuration-layout-theme-fonts][Configuration, Layout, theme, fonts]]
+  - [[#general-configuration][General configuration]]
+  - [[#modeline][Modeline]]
+  - [[#all-the-icons][All the icons]]
+  - [[#fonts][Fonts]]
+  - [[#theme][Theme]]
+- [[#editing][Editing]]
+  - [[#code-formatting][Code formatting]]
+  - [[#commenting-lines][Commenting lines]]
+  - [[#frame-scaling--zooming][Frame scaling / zooming]]
+  - [[#line-numbers][Line numbers]]
+- [[#etc][Etc]]
+  - [[#ivy][Ivy]]
+  - [[#vterm][VTerm]]
+  - [[#projectile][Projectile]]
+  - [[#org-mode][Org mode]]
+    - [[#org][Org]]
+    - [[#org-definitions][Org definitions]]
+    - [[#source-code-block-syntax-highlighting][Source Code Block Syntax Highlighting]]
+    - [[#bullets][Bullets]]
+    - [[#automatically-create-toc][Automatically create TOC]]
+    - [[#yasnippet][YASnippet]]
+  - [[#org-capture--refile][Org Capture & refile]]
+  - [[#which-key][Which key]]
+- [[#other-applications][Other applications]]
+  - [[#blogging-with-hugo][Blogging with Hugo]]
+  - [[#plantuml][PlantUML]]
+  - [[#mermaid][Mermaid]]
+  - [[#rust][Rust]]
+  - [[#magit][Magit]]
 
-* Emacs Configuration
-
-** Startup
+* Startup
 To make sure everything loads correctly, we start with some basic setup.
 
 *** Setup Package.el To Work With MELPA
@@ -68,7 +65,7 @@ To make sure everything loads correctly, we start with some basic setup.
 ;;(package-initialize)
 #+END_SRC
 
-*** Use-package
+** Use-package
 Install use-package and enable ‘:ensure t’ globally.  The ‘:ensure’ keyword causes the package(s) within use-package statements to be installed automatically if not already present on your system.  To avoid having to add ‘:ensure t’ to every use-package statement in this config, I set ‘use-package-always-ensure’.
 
 #+BEGIN_SRC emacs-lisp
@@ -77,10 +74,10 @@ Install use-package and enable ‘:ensure t’ globally.  The ‘:ensure’ keyw
 (setq use-package-always-ensure t)
 #+END_SRC
 
-*** Faster startup
+** Faster startup
 This section is where it make emacs faster to load.
 
-**** Garbage collection
+*** Garbage collection
 Makes startup faster by reducing the frequency of garbage collection
 #+begin_src emacs-lisp
 ;; Using garbage magic hack.
@@ -110,7 +107,7 @@ Makes startup faster by reducing the frequency of garbage collection
 #+RESULTS:
 | (lambda nil (interactive) (my/frame-resize) (my/frame-move 0.5 0.5)) | #[0 \301!\210eb\210\302 \210\303\304!\207 [dashboard-buffer-name switch-to-buffer redisplay run-hooks dashboard-after-initialize-hook] 2] | (lambda nil (message *** Emacs loaded in %s with %d garbage collections. (format %.2f seconds (float-time (time-subtract after-init-time before-init-time))) gcs-done)) | (lambda nil (interactive) ((my/frame-resize) (my/frame-move 0.5 0.5))) |
 
-**** Native Compile
+*** Native Compile
 #+begin_src emacs-lisp
 ;; Silence compiler warnings as they can be pretty disruptive
 (if (boundp 'comp-deferred-compilation)
@@ -122,7 +119,7 @@ Makes startup faster by reducing the frequency of garbage collection
 (setq load-prefer-newer noninteractive)
 #+end_src
 
-*** Keep emacs dir clean
+** Keep emacs dir clean
 
 #+BEGIN_SRC emacs-lisp
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
@@ -135,7 +132,7 @@ Makes startup faster by reducing the frequency of garbage collection
 	(load custom-file))
 #+END_SRC
 
-*** Restart Emacs
+** Restart Emacs
 
 #+BEGIN_SRC emacs-lisp
 (defun save-and-kill-this-buffer()(interactive)(save-buffer)(kill-current-buffer))
@@ -145,7 +142,7 @@ Makes startup faster by reducing the frequency of garbage collection
 #+RESULTS:
 : yes-or-no-p
 
-*** Evil mode
+** Evil mode
 Evil is an extensible ‘vi’ layer for Emacs. It emulates the main features of Vim, and provides facilities for writing custom extensions.  Evil Collection is also installed since it adds ‘evil’ bindings to parts of Emacs that the standard Evil package does not cover, such as: calenda, help-mode adn ibuffer.
 
 #+BEGIN_SRC emacs-lisp
@@ -166,7 +163,7 @@ Evil is an extensible ‘vi’ layer for Emacs. It emulates the main features of
     (evil-collection-init))
 #+END_SRC
 
-*** General Keybindings
+** General Keybindings
 General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have grown accustomed to using SPC as the prefix key.  General makes setting keybindings (especially with SPC) much easier.  All of the keybindings we set later in the config depend on general being loaded.
 
 #+BEGIN_SRC emacs-lisp
@@ -175,15 +172,15 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
   (general-evil-setup t))
 #+END_SRC
 
-*** Custom functions
-**** Determine OS type
+** Custom functions
+*** Determine OS type
 #+BEGIN_SRC emacs-lisp
 (defconst on-linux (string-equal system-type "gnu/linux"))
 (defconst on-windows (string-equal system-type "windows-nt"))
 (defconst on-mac (string-equal system-type "darwin"))
 #+END_SRC
 
-**** Auto resize emacs
+*** Auto resize emacs
 
 #+BEGIN_SRC emacs-lisp
   (defun my/frame-monitor-usable-height (factor &optional frame)
@@ -202,7 +199,7 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
   ;;(my/resize-and-center)
 #+END_SRC
 
-**** Set emacs' position on screen
+*** Set emacs' position on screen
 
 #+BEGIN_SRC emacs-lisp
 (defun my/frame-move (left top &optional frame)
@@ -220,7 +217,7 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
 #+RESULTS:
 : my/frame-move
 
-**** Resize and screen-location keybindings
+*** Resize and screen-location keybindings
 
 | COMMAND                | DESCRIPTION                     | KEYBINDING |
 |------------------------+---------------------------------+------------|
@@ -247,7 +244,7 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
 
 #+RESULTS:
 
-**** Splits and window controls
+*** Splits and window controls
 
 #+begin_src emacs-lisp
 (winner-mode 1)
@@ -270,11 +267,11 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
 
 #+RESULTS:
 
-*** Dashboard
+** Dashboard
 
 Emacs Dashboard is an extensible startup screen showing you recent files, bookmarks, agenda items and an Emacs banner.
 
-**** Configuring Dashboard
+*** Configuring Dashboard
 
 #+begin_src emacs-lisp
 (use-package dashboard
@@ -298,15 +295,15 @@ Emacs Dashboard is an extensible startup screen showing you recent files, bookma
 			      (bookmarks . "book"))))
 #+end_src
 
-**** Dashboard in Emacsclient
+*** Dashboard in Emacsclient
 This setting ensures that emacsclient always opens on *dashboard* rather than *scratch*.
 
 #+begin_src emacs-lisp
 (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+end_src
 
-** Configuration, Layout, theme, fonts
-*** General configuration
+* Configuration, Layout, theme, fonts
+** General configuration
 
 #+BEGIN_SRC emacs-lisp
   (fset 'yes-or-no-p 'y-or-n-p)
@@ -324,7 +321,7 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 #+RESULTS:
 : t
 
-*** Modeline
+** Modeline
 
 TODO: change to a better, more functional mood line.
 
@@ -333,13 +330,13 @@ TODO: change to a better, more functional mood line.
     :config (mood-line-mode))
 #+END_SRC
 
-*** All the icons
+** All the icons
 
 #+BEGIN_SRC emacs-lisp
 (use-package all-the-icons)
 #+END_SRC
 
-*** Fonts
+** Fonts
 #+BEGIN_SRC emacs-lisp
 (defvar runemacs/default-font-size 80)
 (when on-linux
@@ -348,7 +345,7 @@ TODO: change to a better, more functional mood line.
     (set-face-attribute 'default nil :font "JetBrainsMONO NF" :height runemacs/default-font-size))
 #+END_SRC
 
-*** Theme
+** Theme
 
 #+BEGIN_SRC emacs-lisp
 (use-package modus-themes
@@ -364,8 +361,8 @@ TODO: change to a better, more functional mood line.
 :bind ("<f5>" . modus-themes-toggle))
 #+END_SRC
 
-** Editing
-*** Code formatting
+* Editing
+** Code formatting
 
 #+BEGIN_SRC emacs-lisp
 (use-package format-all)
@@ -376,14 +373,14 @@ TODO: change to a better, more functional mood line.
 (add-hook 'prog-mode-hook #'format-all-ensure-formatter)
 #+END_SRC
 
-*** Commenting lines
+** Commenting lines
 
 #+BEGIN_SRC emacs-lisp
 (use-package evil-nerd-commenter
 	:bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
 
-*** Frame scaling / zooming
+** Frame scaling / zooming
 
 #+BEGIN_SRC emacs-lisp
 (use-package default-text-scale
@@ -395,7 +392,7 @@ TODO: change to a better, more functional mood line.
 (global-set-key (kbd "C-M-0") 'default-text-scale-reset)
 #+END_SRC
 
-*** Line numbers
+** Line numbers
 
 | COMMAND                   | DESCRIPTION             | KEYBINDING |
 |---------------------------+-------------------------+------------|
@@ -415,8 +412,8 @@ TODO: change to a better, more functional mood line.
 	"l d" 'display-line-numbers-mode :which-key "Display line numbers.")
 #+END_SRC
 
-** Etc
-*** Ivy
+* Etc
+** Ivy
 
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
@@ -438,13 +435,13 @@ TODO: change to a better, more functional mood line.
 
 #+END_SRC
 
-*** VTerm
+** VTerm
 
 #+BEGIN_SRC emacs-lisp
 (use-package vterm)
 #+END_SRC
 
-*** Projectile
+** Projectile
 
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
@@ -463,9 +460,9 @@ TODO: change to a better, more functional mood line.
 
 #+END_SRC
 
-*** Org mode
+** Org mode
 
-**** Org
+*** Org
 
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -478,7 +475,7 @@ TODO: change to a better, more functional mood line.
 		(kbd "TAB") 'org-cycle))
 #+END_SRC
 
-**** Org definitions
+*** Org definitions
 
 #+BEGIN_SRC emacs-lisp
 ;;(with-eval-after-load 'org       
@@ -502,7 +499,7 @@ TODO: change to a better, more functional mood line.
 #+RESULTS:
 : 0
 
-**** Source Code Block Syntax Highlighting
+*** Source Code Block Syntax Highlighting
 
 #+BEGIN_SRC emacs-lisp
 (setq org-src-fontify-natively t
@@ -510,21 +507,21 @@ TODO: change to a better, more functional mood line.
     org-confirm-babel-evaluate nil)
 #+END_SRC
 
-**** Bullets
+*** Bullets
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+END_SRC
 
-**** Automatically create TOC
+*** Automatically create TOC
 #+BEGIN_SRC emacs-lisp
 (use-package toc-org
   :commands toc-org-enable
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 #+END_SRC
 
-**** YASnippet
+*** YASnippet
 
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
@@ -536,7 +533,7 @@ TODO: change to a better, more functional mood line.
 #+RESULTS:
 : t
 
-*** Org Capture & refile
+** Org Capture & refile
 
 #+BEGIN_SRC emacs-lisp
 (defun load-org-agenda-files-recursively (dir) "Find all directories in DIR."
@@ -576,7 +573,7 @@ TODO: change to a better, more functional mood line.
 
 #+RESULTS:
 
-*** Which key
+** Which key
 
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
@@ -596,44 +593,8 @@ TODO: change to a better, more functional mood line.
 (which-key-mode)
 #+END_SRC
 
-#+RESULTS:
-: t
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-** Other applications
-*** Blogging with Hugo
+* Other applications
+** Blogging with Hugo
 
 #+BEGIN_SRC emacs-lisp
 ;; Github Flavored Markdown exporter for org mode
@@ -649,7 +610,7 @@ TODO: change to a better, more functional mood line.
 	:after ox)
 #+END_SRC
 
-*** PlantUML
+** PlantUML
 
 #+BEGIN_SRC emacs-lisp
 (use-package plantuml-mode
@@ -667,7 +628,7 @@ TODO: change to a better, more functional mood line.
 		(add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
 #+END_SRC
 
-*** Mermaid
+** Mermaid
 
 #+BEGIN_SRC emacs-lisp
 (use-package ob-mermaid
@@ -676,7 +637,7 @@ TODO: change to a better, more functional mood line.
 (setq ob-mermaid-cli-path "/usr/bin/mmdc")
 #+END_SRC
 
-*** Rust
+** Rust
 
 #+BEGIN_SRC emacs-lisp
 (require 'rust-mode)
@@ -688,7 +649,7 @@ TODO: change to a better, more functional mood line.
 (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
 #+END_SRC
 
-*** Magit
+** Magit
 
 The best Git implementation for Emacs.
 
