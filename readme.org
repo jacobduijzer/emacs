@@ -1,6 +1,9 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Jacob Duijzer
 
+This is my Emacs configuration. It might not be the best setup and it is a
+work in progress.
+
 * Table Of Contents                                                   :TOC_4:
 - [[#startup][Startup]]
     - [[#setup-packageel-to-work-with-melpa][Setup Package.el To Work With MELPA]]
