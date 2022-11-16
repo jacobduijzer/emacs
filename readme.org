@@ -44,7 +44,7 @@ work in progress. I might update it frequently. Testing123
     - [[#org][Org]]
     - [[#org-definitions][Org definitions]]
     - [[#agenda][Agenda]]
-    - [[#alerts][Alerts]]
+    - [[#alerts--notifications][Alerts / Notifications]]
     - [[#habit][Habit]]
     - [[#source-code-block-syntax-highlighting][Source Code Block Syntax Highlighting]]
     - [[#bullets][Bullets]]
@@ -517,7 +517,9 @@ TODO: change to a better, more functional mood line.
 (setq calendar-week-start-day 1)
 #+END_SRC
 
-*** Alerts
+*** Alerts / Notifications
+
+Shows D-Bus reminders for org files. To blacklist items, add a "PERSONAL" tag.
 
     #+BEGIN_SRC emacs-lisp
     ;;    (use-package org-alert
@@ -530,18 +532,16 @@ TODO: change to a better, more functional mood line.
 
     ;; More advanced package org-wild-notifier
     (use-package org-wild-notifier
-	:ensure t
-	:custom
-	(alert-default-style 'notifications)
-	(org-wild-notifier-alert-time '(1 15 30))
-	(org-wild-notifier-keyword-whitelist nil)
-	(org-wild-notifier-notification-title "Org Reminder!")
-	:config
-    	(org-wild-notifier-mode 1))
+            :ensure t
+            :custom
+            (alert-default-style 'notifications)
+            (org-wild-notifier-alert-time '(1 15 30))
+            (org-wild-notifier-keyword-whitelist nil)
+            (org-wild-notifier-tags-blacklist '("PERSONAL"))
+            (org-wild-notifier-notification-title "Org Reminder!")
+            :config
+            (org-wild-notifier-mode 1))
     #+END_SRC
-
-    #+RESULTS:
-    : t
 
 *** Habit
 
@@ -552,9 +552,6 @@ TODO: find out that habit does. Seems cool, but need more details.
 (add-to-list 'org-modules 'org-habit)
 (setq org-habit-graph-column 60)
 #+END_SRC
-
-#+RESULTS:
-: 60
 
 *** Source Code Block Syntax Highlighting
 
@@ -572,6 +569,7 @@ TODO: find out that habit does. Seems cool, but need more details.
 #+END_SRC
 
 *** Automatically create TOC
+
 #+BEGIN_SRC emacs-lisp
 (use-package toc-org
   :commands toc-org-enable
