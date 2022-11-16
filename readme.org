@@ -191,20 +191,19 @@ General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have 
 *** Auto resize emacs
 
 #+BEGIN_SRC emacs-lisp
-  (defun my/frame-monitor-usable-height (factor &optional frame)
-    "Return the usable height in pixels of the monitor of FRAME.
-  FRAME can be a frame name, a terminal name, or a frame.
-  If FRAME is omitted or nil, use currently selected frame.
+(defun my/frame-monitor-usable-height (factor &optional frame)
+"Return the usable height in pixels of the monitor of FRAME.
+FRAME can be a frame name, a terminal name, or a frame.
+If FRAME is omitted or nil, use currently selected frame.
 
-  Uses the monitor's workarea. See `display-monitor-attributes-list'."
+Uses the monitor's workarea. See `display-monitor-attributes-list'."
     (cadddr (frame-monitor-workarea frame))
     (truncate (* (cadddr (frame-monitor-workarea frame)) factor)))
 
 (defun my/frame-resize (&optional frame)
     (interactive)
-    (set-frame-size (selected-frame) (truncate 1500) (my/frame-monitor-usable-height 0.8) t)
-)
-  ;;(my/resize-and-center)
+    (set-frame-size (selected-frame) (truncate 1500) (my/frame-monitor-usable-height 0.8) t))
+;;(my/resize-and-center)
 #+END_SRC
 
 *** Set emacs' position on screen
@@ -314,24 +313,21 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 ** General configuration
 
 #+BEGIN_SRC emacs-lisp
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (blink-cursor-mode -1)
-  (modify-all-frames-parameters '((internal-border-width . 50)))
+(fset 'yes-or-no-p 'y-or-n-p)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(blink-cursor-mode -1)
+(modify-all-frames-parameters '((internal-border-width . 50)))
 (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3))) ;; how many lines at a time
 (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 #+END_SRC
 
-#+RESULTS:
-: t
-
 ** Modeline
 
-TODO: change to a better, more functional mood line.
+TODO: change to a better, more functional mood line? Configuration?
 
 #+BEGIN_SRC emacs-lisp
 (use-package mood-line
@@ -357,16 +353,16 @@ TODO: change to a better, more functional mood line.
 
 #+BEGIN_SRC emacs-lisp
 (use-package modus-themes
-:ensure
-:init
-(setq modus-themes-italic-constructs t
-	modus-themes-bold-constructs nil
-	modus-themes-region '(bg-only no-extend))
-(modus-themes-load-themes)
-:config
-					;(modus-themes-load-operandi)            ; Light theme
-(modus-themes-load-vivendi)             ; Dark theme
-:bind ("<f5>" . modus-themes-toggle))
+    :ensure
+    :init
+    (setq	modus-themes-italic-constructs t
+            modus-themes-bold-constructs nil
+            modus-themes-region '(bg-only no-extend))
+    (modus-themes-load-themes)
+    :config
+                                            ;(modus-themes-load-operandi)            ; Light theme
+    (modus-themes-load-vivendi)             ; Dark theme
+    :bind ("<f5>" . modus-themes-toggle))
 #+END_SRC
 
 * Editing
@@ -706,10 +702,19 @@ TODO: find out that habit does. Seems cool, but need more details.
 
 The best Git implementation for Emacs.
 
+| COMMAND                   | DESCRIPTION         | KEYBINDING |
+|---------------------------+---------------------+------------|
+| magit                     | /Show magit/          | SPC g      |
+
 #+BEGIN_SRC emacs-lisp
 (use-package magit
     :ensure t)
+
+(nvmap :prefix "SPC"
+	"g" 'magit)
 #+END_SRC
+
+#+RESULTS:
 
 ** Spielerei
 
