@@ -1,5 +1,6 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Jacob Duijzer
+#+STARTUP: indent
 
 This is my Emacs configuration. It might not be the best setup and it is a
 work in progress. I might update it frequently. Testing123
@@ -42,6 +43,8 @@ work in progress. I might update it frequently. Testing123
   - [[#org-mode][Org mode]]
     - [[#org][Org]]
     - [[#org-definitions][Org definitions]]
+    - [[#agenda][Agenda]]
+    - [[#habit][Habit]]
     - [[#source-code-block-syntax-highlighting][Source Code Block Syntax Highlighting]]
     - [[#bullets][Bullets]]
     - [[#automatically-create-toc][Automatically create TOC]]
@@ -495,12 +498,35 @@ TODO: change to a better, more functional mood line.
 	org-journal-file-format "%Y-%m-%d.org"
 	org-hide-emphasis-markers t)
 (setq org-src-preserve-indentation nil
-      org-src-tab-acts-natively t
-      org-edit-src-content-indentation 0)
+	org-src-tab-acts-natively t
+	org-edit-src-content-indentation 0
+	org-adapt-indentation t)
+
 #+END_SRC
 
 #+RESULTS:
-: 0
+: t
+
+*** Agenda
+
+#+BEGIN_SRC emacs-lisp
+
+;; start with Monday as first day of the week
+(setq calendar-week-start-day 1)
+#+END_SRC
+
+*** Habit
+
+TODO: find out that habit does. Seems cool, but need more details.
+
+#+BEGIN_SRC emacs-lisp
+(require 'org-habit)
+(add-to-list 'org-modules 'org-habit)
+(setq org-habit-graph-column 60)
+#+END_SRC
+
+#+RESULTS:
+: 60
 
 *** Source Code Block Syntax Highlighting
 
@@ -573,8 +599,6 @@ TODO: change to a better, more functional mood line.
 (nvmap :prefix "SPC"
     "c" 'org-capture)
 #+END_SRC
-
-#+RESULTS:
 
 ** Which key
 
