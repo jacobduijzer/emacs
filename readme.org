@@ -9,6 +9,7 @@ work in progress. I might update it frequently. Testing123
 - [[#startup][Startup]]
     - [[#setup-packageel-to-work-with-melpa][Setup Package.el To Work With MELPA]]
   - [[#use-package][Use-package]]
+  - [[#backups][Backups]]
   - [[#faster-startup][Faster startup]]
     - [[#garbage-collection][Garbage collection]]
     - [[#native-compile][Native Compile]]
@@ -40,17 +41,24 @@ work in progress. I might update it frequently. Testing123
   - [[#ivy][Ivy]]
   - [[#vterm][VTerm]]
   - [[#projectile][Projectile]]
+  - [[#file-manager-dired][File manager (Dired)]]
+  - [[#keybindings-to-open-dired][Keybindings To Open Dired]]
+  - [[#keybindings-within-dired][Keybindings Within Dired]]
+  - [[#keybindings-for-peep-dired-mode][Keybindings For Peep-Dired-Mode]]
   - [[#org-mode][Org mode]]
     - [[#org][Org]]
+    - [[#default-file-actions][Default file actions]]
     - [[#org-definitions][Org definitions]]
     - [[#agenda][Agenda]]
     - [[#alerts--notifications][Alerts / Notifications]]
+    - [[#spell-checking][Spell checking]]
     - [[#habit][Habit]]
     - [[#source-code-block-syntax-highlighting][Source Code Block Syntax Highlighting]]
     - [[#bullets][Bullets]]
     - [[#automatically-create-toc][Automatically create TOC]]
     - [[#yasnippet][YASnippet]]
   - [[#org-capture--refile][Org Capture & refile]]
+  - [[#org-roam][Org Roam]]
   - [[#which-key][Which key]]
 - [[#other-applications][Other applications]]
   - [[#blogging-with-hugo][Blogging with Hugo]]
@@ -80,6 +88,18 @@ Install use-package and enable ‘:ensure t’ globally.  The ‘:ensure’ keyw
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 (setq use-package-always-ensure t)
+#+END_SRC
+
+** Backups
+
+#+BEGIN_SRC emacs-lisp
+(setq auto-save-default t)
+(setq make-backup-files t)
+(setq auto-save-list-file-prefix nil)
+(setq backup-directory-alist
+    `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+    `((".*" ,temporary-file-directory t)))
 #+END_SRC
 
 ** Faster startup
@@ -464,6 +484,62 @@ TODO: change to a better, more functional mood line? Configuration?
 
 #+END_SRC
 
+** File manager (Dired)
+
+Dired is the file manager within Emacs.  Below, I setup keybindings for image previews (peep-dired).  I've chosen the format of 'SPC d' plus 'key'.
+
+** Keybindings To Open Dired
+| COMMAND    | DESCRIPTION                        | KEYBINDING |
+|------------+------------------------------------+------------|
+| dired      | /Open dired file manager/            | SPC d d    |
+| dired-jump | /Jump to current directory in dired/ | SPC d j    |
+
+** Keybindings Within Dired
+| COMMAND            | DESCRIPTION                                 | KEYBINDING |
+|--------------------+---------------------------------------------+------------|
+| dired-view-file    | /View file in dired/                          | SPC d v    |
+| dired-up-directory | /Go up in directory tree/                     | h          |
+| dired-find-file    | /Go down in directory tree (or open if file)/ | l          |
+
+** Keybindings For Peep-Dired-Mode
+| COMMAND              | DESCRIPTION                              | KEYBINDING |
+|----------------------+------------------------------------------+------------|
+| peep-dired           | /Toggle previews within dired/             | SPC d p    |
+| peep-dired-next-file | /Move to next file in peep-dired-mode/     | j          |
+| peep-dired-prev-file | /Move to previous file in peep-dired-mode/ | k          |
+
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-dired)
+(use-package dired-open)
+(use-package peep-dired)
+
+(nvmap :states '(normal visual) :keymaps 'override :prefix "SPC"
+               "d d" '(dired :which-key "Open dired")
+               "d j" '(dired-jump :which-key "Dired jump to current")
+               "d p" '(peep-dired :which-key "Peep-dired"))
+
+(with-eval-after-load 'dired
+  ;;(define-key dired-mode-map (kbd "M-p") 'peep-dired)
+  (evil-define-key 'normal dired-mode-map (kbd "h") 'dired-up-directory)
+  (evil-define-key 'normal dired-mode-map (kbd "l") 'dired-open-file) ; use dired-find-file instead if not using dired-open package
+  (evil-define-key 'normal peep-dired-mode-map (kbd "j") 'peep-dired-next-file)
+  (evil-define-key 'normal peep-dired-mode-map (kbd "k") 'peep-dired-prev-file))
+
+(add-hook 'peep-dired-hook 'evil-normalize-keymaps)
+;; Get file icons in dired
+(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+;; With dired-open plugin, you can launch external programs for certain extensions
+;; For example, I set all .png files to open in 'sxiv' and all .mp4 files to open in 'mpv'
+(setq dired-open-extensions '(("gif" . "sxiv")
+                              ("jpg" . "sxiv")
+                              ("png" . "sxiv")
+                              ("mkv" . "mpv")
+                              ("mp4" . "mpv")))
+#+END_SRC
+
+#+RESULTS:
+: ((gif . sxiv) (jpg . sxiv) (png . sxiv) (mkv . mpv) (mp4 . mpv))
+
 ** Org mode
 
 *** Org
@@ -479,6 +555,15 @@ TODO: change to a better, more functional mood line? Configuration?
 		(kbd "TAB") 'org-cycle))
 #+END_SRC
 
+*** Default file actions
+
+#+BEGIN_SRC emacs-lisp
+(setq org-file-apps
+	(quote
+		((auto-mode . emacs)
+		("\\.x?html?\\'" . "/usr/bin/firefox %s"))))
+#+END_SRC
+
 *** Org definitions
 
 #+BEGIN_SRC emacs-lisp
@@ -488,10 +573,10 @@ TODO: change to a better, more functional mood line? Configuration?
 	(lambda ()
 		(visual-line-mode 1)))
 (setq	org-directory "~/Documents/org"
-	org-default-notes-file (expand-file-name "notes.org" org-directory)
+	org-default-notes-file (expand-file-name "inbox.org" org-directory)
 	org-ellipsis " ▼ "
 	org-log-done 'time
-	org-journal-dir "~/Org/journal/"
+	org-journal-dir "~/Documents/org/journal/"
 	org-journal-date-format "%B %d, %Y (%A) "
 	org-journal-file-format "%Y-%m-%d.org"
 	org-hide-emphasis-markers t)
@@ -500,10 +585,11 @@ TODO: change to a better, more functional mood line? Configuration?
 	org-edit-src-content-indentation 0
 	org-adapt-indentation t)
 
+(setq org-image-actual-width 400)
 #+END_SRC
 
 #+RESULTS:
-: t
+: 400
 
 *** Agenda
 
@@ -511,7 +597,12 @@ TODO: change to a better, more functional mood line? Configuration?
 
 ;; start with Monday as first day of the week
 (setq calendar-week-start-day 1)
+
+(nvmap :prefix "SPC"
+    "a" 'org-agenda)
 #+END_SRC
+
+#+RESULTS:
 
 *** Alerts / Notifications
 
@@ -538,6 +629,46 @@ Shows D-Bus reminders for org files. To blacklist items, add a "PERSONAL" tag.
             :config
             (org-wild-notifier-mode 1))
     #+END_SRC
+   
+*** Spell checking
+
+ Usage:
+ * Use f10 to set dictionary, german or english.
+ * Press f12 to check spelling in the buffer.
+ * Press f11 to go to the next spelling error, ispell shows corrections that can be chosen. If not needed skip with SPC.
+
+#+BEGIN_SRC emacs-lisp
+
+(global-set-key (kbd "<f12>") 'flyspell-buffer)
+(global-set-key (kbd "<f11>") 'flyspell-check-next-highlighted-word)
+(global-set-key (kbd "<f10>") 'fd-switch-dictionary)
+
+(setq ispell-program-name "aspell")
+(setq ispell-local-dictionary "nl")
+(setq ispell-current-dictionary "nl")
+
+(defun fd-switch-dictionary()
+(interactive)
+(let* ((dic ispell-current-dictionary)
+        (change (if (string= dic "nl") "english" "nl")))
+    (ispell-change-dictionary change)
+    (message "Dictionary switched from %s to %s" dic change)))
+
+(defun flyspell-check-next-highlighted-word ()
+"Custom function to spell check next highlighted word"
+(interactive)
+(flyspell-goto-next-error)
+(ispell-word))
+
+#+END_SRC
+
+#+RESULTS:
+: flyspell-check-next-highlighted-word
+
+,#+BEGIN_SRC emacs-lisp
+;;(dolist (hook '(text-mode-hook))
+;;  (add-hook hook (lambda () (flyspell-mode 1))))
+#+END_SRC
 
 *** Habit
 
@@ -572,6 +703,9 @@ TODO: find out that habit does. Seems cool, but need more details.
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 #+END_SRC
 
+#+RESULTS:
+| #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | toc-org-enable | (lambda nil (org-bullets-mode 1)) | (lambda nil (visual-line-mode 1)) | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+
 *** YASnippet
 
 #+BEGIN_SRC emacs-lisp
@@ -601,8 +735,8 @@ TODO: find out that habit does. Seems cool, but need more details.
 (setq	org-refile-use-cache nil
 		org-refile-use-outline-path 'file
 		org-refile-allow-creating-parent-nodes (quote confirm)
-		org-refile-targets '((org-agenda-files :maxlevel . 2))
-          org-outline-path-complete-in-steps nil)
+		org-refile-targets '((org-agenda-files :maxlevel . 4))
+            org-outline-path-complete-in-steps nil)
 
 (setq org-capture-templates
         (quote (
@@ -611,7 +745,7 @@ TODO: find out that habit does. Seems cool, but need more details.
                 ("n" "Note" entry (file+datetree org-default-notes-file)
                 "* NOTE %? %U" :empty-lines 1 :prepend t)
                 ("m" "Meeting" entry (file+datetree org-default-notes-file)
-                "* MEETING %? %U\n  With: \n" :empty-lines 1 :prepend t)
+                "* MEETING %? %U\nWith: \n" :empty-lines 1 :prepend t)
                 ("s" "Standup" entry (file+datetree org-default-notes-file)
                 "* STANDUP %U\n Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n" :prepend t :empty-lines 1)
                 ("c" "Coaching" entry (file+datetree org-default-notes-file)
@@ -621,6 +755,81 @@ TODO: find out that habit does. Seems cool, but need more details.
 (nvmap :prefix "SPC"
     "c" 'org-capture)
 #+END_SRC
+
+#+RESULTS:
+
+
+** Org Roam
+
+TODO: Create table with commands
+
+| COMMAND                            | DESCRIPTION       | KEYBINDING |
+|------------------------------------+-------------------+------------|
+| org-roam-buffer-toggle             | Toggle buffer     | SPC r t    |
+| org-roam-node-find                 | Find node         | SPC r f    |
+| org-roam-node-insert               | Insert node       | SPC r i    |
+| org-roam-dailies-capture-today     | Capture today     | SPC r j t  |
+| org-roam-dailies-goto-today        | View today        | SPC r v t  |
+| org-roam-dailies-capture-yesterday | Capture yesterday | SPC r j y  |
+| org-roam-dailies-goto-yesterday    | View yesterday    | SPC r v y  |
+| org-roam-dailies-capture-tomorrow  | Capture tomorrow  | SPC r j m  |
+| org-roam-dailies-goto-tomorrow     | View tomorrow     | SPC r v m  |
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-roam
+	:ensure t
+	:init
+	(setq org-roam-v2-ack t)
+	:custom
+	(org-roam-directory "~/Documents/org/RoamNotes")
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+    	'(("d" "default" plain
+               "%?"
+               :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+               :unnarrowed t)))
+	:config
+	(org-roam-db-autosync-mode))
+
+ (nvmap :prefix "SPC"
+    "r t" 'org-roam-dailies-capture-today :which-key "Capture Today"
+    "r f" 'org-roam-node-find :which-key "Roam find node"
+	"r i" 'org-roam-node-insert :which-key "Roam insert node"
+	"r j t" 'org-roam-dailies-capture-today :which-key "Journal for today"
+	"r v t" 'org-roam-dailies-goto-today :which-key "View journal for today"
+    "r j y" 'org-roam-dailies-capture-yesterday :which-key "Journal for yesterday"
+	"r v y" 'org-roam-dailies-goto-yesterday :which-key "View journal for yesterday"
+    "r j m" 'org-roam-dailies-capture-tomorrow :which-key "Journal for tomorrow"
+	"r v m" 'org-roam-dailies-goto-tomorrow :which-key "View journal for tomorrow"
+ )
+
+(setq org-roam-dailies-capture-templates
+	'(
+		("d" "Journal" entry "* %?"
+			:if-new (file+head+olp "%<%Y-%m-%d>.org"
+	  	  	        "#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+		  	        ("Journal")))
+		("m" "Meeting" entry "* MEETING %? %U\nWith: \n"
+			:if-new (file+head+olp "%<%Y-%m-%d>.org"
+				"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
+				("Meeting")))
+		("n" "Note" entry "* NOTE %? %U\n"
+			:if-new (file+head+olp "%<%Y-%m-%d>.org"
+	  	  	        "#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+				("Note")))
+		("s" "Standup" entry "* STANDUP %U\n  Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n"
+			:if-new (file+head+olp "%<%Y-%m-%d>.org"
+				"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
+				("Standup")))
+		("t" "To do" entry "* TODO %?"
+			:if-new (file+head+olp "%<%Y-%m-%d>.org"
+				"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+			        ("To do")))))
+
+#+END_SRC
+
+#+RESULTS:
+| d | Journal | entry | * %? | :if-new | (file+head+olp %<%Y-%m-%d>.org #+title: %<%Y-%m-%d> |
 
 ** Which key
 
@@ -641,6 +850,10 @@ TODO: find out that habit does. Seems cool, but need more details.
         which-key-separator " → " ))
 (which-key-mode)
 #+END_SRC
+
+#+RESULTS:
+: t
+
 
 * Other applications
 ** Blogging with Hugo
@@ -671,7 +884,7 @@ TODO: find out that habit does. Seems cool, but need more details.
 	(add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
 	(add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
 	(setq plantuml-output-type "png"))
-	(setq org-plantuml-jar-path (expand-file-name "/usr/share/hava/plantuml/plantuml.jar"))
+	(setq org-plantuml-jar-path (expand-file-name "/usr/share/java/plantuml/plantuml.jar"))
 	(org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
 	(with-eval-after-load 'ox-hugo
 		(add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
@@ -696,6 +909,7 @@ TODO: find out that habit does. Seems cool, but need more details.
 (add-hook 'rust-mode-hook
     (lambda () (prettify-symbols-mode)))
 (define-key rust-mode-map (kbd "C-c C-c") 'rust-run)
+
 #+END_SRC
 
 ** Magit
@@ -716,10 +930,7 @@ The best Git implementation for Emacs.
 
 #+RESULTS:
 
+
 ** Spielerei
 
-#+BEGIN_SRC emacs-lisp
 
-#+END_SRC
-
-#+RESULTS:
