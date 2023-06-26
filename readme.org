@@ -57,6 +57,7 @@ work in progress. I might update it frequently. Testing123
     - [[#bullets][Bullets]]
     - [[#automatically-create-toc][Automatically create TOC]]
     - [[#yasnippet][YASnippet]]
+    - [[#screenshot-to-org][Screenshot to org]]
   - [[#org-capture--refile][Org Capture & refile]]
   - [[#org-roam][Org Roam]]
   - [[#which-key][Which key]]
@@ -67,7 +68,6 @@ work in progress. I might update it frequently. Testing123
   - [[#rust][Rust]]
   - [[#magit][Magit]]
   - [[#spielerei][Spielerei]]
-    - [[#screenshot-to-org][Screenshot to org]]
 
 * Startup
 To make sure everything loads correctly, we start with some basic setup.
@@ -718,6 +718,80 @@ TODO: find out that habit does. Seems cool, but need more details.
 #+RESULTS:
 : t
 
+*** Screenshot to org
+
+Taking a screenshot with flameshot, directly from emacs. The screenshot will be placed in the org file.
+
+| COMMAND                   | DESCRIPTION                                | KEYBINDING |
+|---------------------------+--------------------------------------------+------------|
+| flameshot gui -p filename | Show flameshot, add screenshot to org file | SCP PrtSc  |
+
+
+#+BEGIN_SRC emacs-lisp
+(defun my-org-screenshot (&optional PROMPT RELATIVE_FOLDER)
+  "Take a screenshot into a time stamped unique-named file in the
+same directory as the org-buffer and insert a link to this file."
+  (interactive)
+  ;; At the very first, check if the current buffer has a file name. If not, mode needs to be
+  ;; PROMPT with DEFAULT_FOLDER
+  (if (null (buffer-file-name)) (setq PROMPT t))
+  (if (null (buffer-file-name))
+      ;; set here the BASE FOLDER in case you call the function from a Capture-Buffer or Agenda-Buffer
+    (setq DEFAULT_FOLDER "/home/jacob/Documents/org/screenshots")
+    (setq DEFAULT_FOLDER (file-name-directory (buffer-file-name)))
+    )
+	    
+  ;; First, get the filename right. 3 cases to consider, original, fixed relative_folder
+  ;; and prompt
+  (if
+    (and (not PROMPT) (null RELATIVE_FOLDER))
+      (setq filename
+        (concat
+          (buffer-file-name)
+	  ;; + screenshot_20230402_143201.png
+          (format-time-string "%Y%m%d_%H%M%S_")
+          ".png")
+	)
+    ;; else: either PROMPT is true or RELATIVE_FOLDER is non-nil
+    (if PROMPT
+	(setq filename
+	      (read-file-name "Enter file name (must end in .png): " DEFAULT_FOLDER
+			      )
+	      )
+       (setq filename
+        (concat
+         (make-temp-name
+          (concat
+	   ;; Name of resulting file: Directory, where it is called...
+	   (file-name-directory buffer-file-name)
+	   ;; + folder name "RELATIVE_FOLDER", needs to exist beforehand
+           RELATIVE_FOLDER
+	   ;; + screenshot_20230402_143201.png
+	   "/"
+           (format-time-string "%Y%m%d_%H%M%S_")
+	   )
+	  )
+	 ".png")
+	)
+      )
+   )
+
+	(shell-command (concat "flameshot gui -p " filename ))
+  (if (file-exists-p filename)
+      ;; Checks if the screenshot was created
+      (insert
+       ;; Inserts the result in the current ORG buffer
+       (concat "[[file:" filename "]]"))
+      (message "No screenshot was created, aborting."))
+  )
+       
+(nvmap :prefix "SPC"
+	"<print>" 'my-org-screenshot)
+
+#+END_SRC
+
+#+RESULTS:
+
 ** Org Capture & refile
 
 #+BEGIN_SRC emacs-lisp
@@ -856,6 +930,7 @@ TODO: Create table with commands
 
 
 * Other applications
+
 ** Blogging with Hugo
 
 #+BEGIN_SRC emacs-lisp
@@ -932,79 +1007,4 @@ The best Git implementation for Emacs.
 
 
 ** Spielerei
-
-*** Screenshot to org
-
-Taking a screenshot with flameshot, directly from emacs. The screenshot will be placed in the org file.
-
-| COMMAND                   | DESCRIPTION                                | KEYBINDING |
-|---------------------------+--------------------------------------------+------------|
-| flameshot gui -p filename | Show flameshot, add screenshot to org file | SCP PrtSc  |
-
-
-#+BEGIN_SRC emacs-lisp
-(defun my-org-screenshot (&optional PROMPT RELATIVE_FOLDER)
-  "Take a screenshot into a time stamped unique-named file in the
-same directory as the org-buffer and insert a link to this file."
-  (interactive)
-  ;; At the very first, check if the current buffer has a file name. If not, mode needs to be
-  ;; PROMPT with DEFAULT_FOLDER
-  (if (null (buffer-file-name)) (setq PROMPT t))
-  (if (null (buffer-file-name))
-      ;; set here the BASE FOLDER in case you call the function from a Capture-Buffer or Agenda-Buffer
-    (setq DEFAULT_FOLDER "/home/jacob/Documents/org/screenshots")
-    (setq DEFAULT_FOLDER (file-name-directory (buffer-file-name)))
-    )
-	    
-  ;; First, get the filename right. 3 cases to consider, original, fixed relative_folder
-  ;; and prompt
-  (if
-    (and (not PROMPT) (null RELATIVE_FOLDER))
-      (setq filename
-        (concat
-          (buffer-file-name)
-	  ;; + screenshot_20230402_143201.png
-          (format-time-string "%Y%m%d_%H%M%S_")
-          ".png")
-	)
-    ;; else: either PROMPT is true or RELATIVE_FOLDER is non-nil
-    (if PROMPT
-	(setq filename
-	      (read-file-name "Enter file name (must end in .png): " DEFAULT_FOLDER
-			      )
-	      )
-       (setq filename
-        (concat
-         (make-temp-name
-          (concat
-	   ;; Name of resulting file: Directory, where it is called...
-	   (file-name-directory buffer-file-name)
-	   ;; + folder name "RELATIVE_FOLDER", needs to exist beforehand
-           RELATIVE_FOLDER
-	   ;; + screenshot_20230402_143201.png
-	   "/"
-           (format-time-string "%Y%m%d_%H%M%S_")
-	   )
-	  )
-	 ".png")
-	)
-      )
-   )
-
-	(shell-command (concat "flameshot gui -p " filename ))
-  (if (file-exists-p filename)
-      ;; Checks if the screenshot was created
-      (insert
-       ;; Inserts the result in the current ORG buffer
-       (concat "[[file:" filename "]]"))
-      (message "No screenshot was created, aborting."))
-  )
-       
-(nvmap :prefix "SPC"
-	"<print>" 'my-org-screenshot)
-
-#+END_SRC
-
-#+RESULTS:
-
 
