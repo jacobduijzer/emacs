@@ -935,6 +935,13 @@ The best Git implementation for Emacs.
 
 *** Screenshot to org
 
+Taking a screenshot with flameshot, directly from emacs. The screenshot will be placed in the org file.
+
+| COMMAND                   | DESCRIPTION                                | KEYBINDING |
+|---------------------------+--------------------------------------------+------------|
+| flameshot gui -p filename | Show flameshot, add screenshot to org file | SCP PrtSc  |
+
+
 #+BEGIN_SRC emacs-lisp
 (defun my-org-screenshot (&optional PROMPT RELATIVE_FOLDER)
   "Take a screenshot into a time stamped unique-named file in the
@@ -992,7 +999,6 @@ same directory as the org-buffer and insert a link to this file."
        (concat "[[file:" filename "]]"))
       (message "No screenshot was created, aborting."))
   )
-
        
 (nvmap :prefix "SPC"
 	"<print>" 'my-org-screenshot)
