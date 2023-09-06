@@ -32,6 +32,8 @@ work in progress. I might update it frequently. Testing123
   - [[#all-the-icons][All the icons]]
   - [[#fonts][Fonts]]
   - [[#theme][Theme]]
+  - [[#fringe][Fringe]]
+  - [[#transparency-for-overlay-editing][Transparency (for overlay editing)]]
 - [[#editing][Editing]]
   - [[#code-formatting][Code formatting]]
   - [[#commenting-lines][Commenting lines]]
@@ -60,6 +62,7 @@ work in progress. I might update it frequently. Testing123
     - [[#screenshot-to-org][Screenshot to org]]
   - [[#org-capture--refile][Org Capture & refile]]
   - [[#org-roam][Org Roam]]
+  - [[#deadgrep-full-text-search-for-org-roam][Deadgrep (full-text search for org-roam?)]]
   - [[#which-key][Which key]]
 - [[#other-applications][Other applications]]
   - [[#blogging-with-hugo][Blogging with Hugo]]
@@ -108,11 +111,13 @@ This section is where it make emacs faster to load.
 
 *** Garbage collection
 Makes startup faster by reducing the frequency of garbage collection
+
+TODO: find out why gcmh stopped working.
 #+begin_src emacs-lisp
 ;; Using garbage magic hack.
- (use-package gcmh
-   :config
-   (gcmh-mode 1))
+ ;;(use-package gcmh
+ ;;  :config
+ ;;  (gcmh-mode 1))
 ;; Setting garbage collection threshold
 (setq gc-cons-threshold 402653184
       gc-cons-percentage 0.6)
@@ -187,9 +192,11 @@ Evil is an extensible ‘vi’ layer for Emacs. It emulates the main features of
     :after evil
     :config
     (setq evil-collection-mode-list '(dashboard dired ibuffer))
-    (evil-ex-define-cmd "wq" 'save-and-kill-this-buffer)
     (evil-collection-init))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 ** General Keybindings
 General.el allows us to set keybindings.  As a longtime Doom Emacs user, I have grown accustomed to using SPC as the prefix key.  General makes setting keybindings (especially with SPC) much easier.  All of the keybindings we set later in the config depend on general being loaded.
@@ -371,6 +378,7 @@ TODO: change to a better, more functional mood line? Configuration?
 
 ** Theme
 
+Using modus-themes (https://protesilaos.com/emacs/modus-themes).
 #+BEGIN_SRC emacs-lisp
 (use-package modus-themes
     :ensure
@@ -378,12 +386,47 @@ TODO: change to a better, more functional mood line? Configuration?
     (setq	modus-themes-italic-constructs t
             modus-themes-bold-constructs nil
             modus-themes-region '(bg-only no-extend))
-    (modus-themes-load-themes)
     :config
-                                            ;(modus-themes-load-operandi)            ; Light theme
-    (modus-themes-load-vivendi)             ; Dark theme
+    ;;(modus-themes-load-vivendi)             ; Dark theme
     :bind ("<f5>" . modus-themes-toggle))
+(load-theme 'modus-vivendi :no-confirm)
+
+(setq modus-themes-common-palette-overrides
+	'((fringe unspecified)))
 #+END_SRC
+
+#+RESULTS:
+| fringe | unspecified |
+
+** Fringe
+
+#+BEGIN_SRC emacs-lisp
+;;;(fringe :inherit default)
+(set-face-attribute 'fringe nil :background nil)
+#+END_SRC
+
+** Transparency (for overlay editing)
+
+#+BEGIN_SRC emacs-lisp
+(defvar my-display-transparency nil)
+(defun my-toggle-transparency ()
+	(interactive)
+	(if (eq my-display-transparency nil)
+		(progn
+			(set-frame-parameter nil 'alpha-background 50)
+			(set-frame-parameter nil 'alpha 50)
+                    (setq my-display-transparency 't))
+	  (progn
+            (set-frame-parameter nil 'alpha-background 100)
+            (set-frame-parameter nil 'alpha 100)
+		(message "%s" my-display-transparency)
+		(setq my-display-transparency nil))))
+
+(global-set-key (kbd "<f9>") 'my-toggle-transparency)
+#+END_SRC
+
+#+RESULTS:
+: my-toggle-transparency
 
 * Editing
 ** Code formatting
@@ -403,6 +446,9 @@ TODO: change to a better, more functional mood line? Configuration?
 (use-package evil-nerd-commenter
 	:bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
+
+#+RESULTS:
+: evilnc-comment-or-uncomment-lines
 
 ** Frame scaling / zooming
 
@@ -905,6 +951,14 @@ TODO: Create table with commands
 #+RESULTS:
 | d | Journal | entry | * %? | :if-new | (file+head+olp %<%Y-%m-%d>.org #+title: %<%Y-%m-%d> |
 
+** Deadgrep (full-text search for org-roam?)
+
+#+BEGIN_SRC emacs-lisp
+;;;(use-package deadgrep
+;;;	(global-set-key (kbd "<f6>") #'deadgrep))
+
+#+END_SRC
+
 ** Which key
 
 #+BEGIN_SRC emacs-lisp
@@ -1007,4 +1061,5 @@ The best Git implementation for Emacs.
 
 
 ** Spielerei
+
 
