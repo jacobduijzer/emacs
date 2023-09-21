@@ -41,6 +41,7 @@ work in progress. I might update it frequently. Testing123
   - [[#line-numbers][Line numbers]]
 - [[#etc][Etc]]
   - [[#ivy][Ivy]]
+  - [[#vertico][Vertico]]
   - [[#vterm][VTerm]]
   - [[#projectile][Projectile]]
   - [[#file-manager-dired][File manager (Dired)]]
@@ -59,6 +60,7 @@ work in progress. I might update it frequently. Testing123
     - [[#bullets][Bullets]]
     - [[#automatically-create-toc][Automatically create TOC]]
     - [[#yasnippet][YASnippet]]
+    - [[#auto-update-images][Auto update images]]
     - [[#screenshot-to-org][Screenshot to org]]
   - [[#org-capture--refile][Org Capture & refile]]
   - [[#org-roam][Org Roam]]
@@ -486,24 +488,47 @@ Using modus-themes (https://protesilaos.com/emacs/modus-themes).
 ** Ivy
 
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel
-      :after ivy
-      :config (counsel-mode))
-
-  (use-package ivy
-	:defer 0.1
-	:diminish
-	:custom
-	(setq ivy-count-format "(%d/%d) ")
-	(setq ivy-use-virtual-buffers t)
-	(setq enable-recursive-minibuffers t)
-	:config
-	(ivy-mode))
-
-  (nvmap :prefix "SPC"
-    "b" 'ivy-switch-buffer :which-key "Ivy switch buffer")
+;;  (use-package counsel
+;;      :after ivy
+;;      :config (counsel-mode))
+;;
+;;  (use-package ivy
+;;	:defer 0.1
+;;	:diminish
+;;	:custom
+;;	(setq ivy-count-format "(%d/%d) ")
+;;	(setq ivy-use-virtual-buffers t)
+;;	(setq enable-recursive-minibuffers t)
+;;	:config
+;;	(ivy-mode))
+;;
+;;  (nvmap :prefix "SPC"
+;;    "b" 'ivy-switch-buffer :which-key "Ivy switch buffer")
 
 #+END_SRC
+** Vertico
+
+#+BEGIN_SRC emacs-lisp
+(use-package vertico
+  :ensure
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
+#+END_SRC
+
+#+RESULTS:
 
 ** VTerm
 
@@ -764,6 +789,18 @@ TODO: find out that habit does. Seems cool, but need more details.
 #+RESULTS:
 : t
 
+*** Auto update images
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-babel-after-execute-hook
+          (lambda ()
+            (when org-inline-image-overlays
+              (org-redisplay-inline-images))))
+#+END_SRC
+
+#+RESULTS:
+| lambda | nil | (when org-inline-image-overlays (org-redisplay-inline-images)) |
+
 *** Screenshot to org
 
 Taking a screenshot with flameshot, directly from emacs. The screenshot will be placed in the org file.
@@ -906,7 +943,11 @@ TODO: Create table with commands
     (org-roam-capture-templates
     	'(("d" "default" plain
                "%?"
-               :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
+               :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+               :unnarrowed t)
+		("n" "notes" plain
+		"\n%?"
+               :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
                :unnarrowed t)))
 	:config
 	(org-roam-db-autosync-mode))
