@@ -52,3 +52,5 @@ projectile-bookmarks.eld
 custom.el
 readme.el
 
+# misc
+eln-cache/
