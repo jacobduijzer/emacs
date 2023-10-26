@@ -23,7 +23,7 @@ work in progress. I might update it frequently. Testing123
     - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
     - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
     - [[#splits-and-window-controls][Splits and window controls]]
-    - [[#keep-quiet][Keep quiet!]]
+    - [[#distraction-free-modes][Distraction Free modes]]
   - [[#dashboard][Dashboard]]
     - [[#configuring-dashboard][Configuring Dashboard]]
     - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
@@ -40,6 +40,7 @@ work in progress. I might update it frequently. Testing123
   - [[#commenting-lines][Commenting lines]]
   - [[#frame-scaling--zooming][Frame scaling / zooming]]
   - [[#line-numbers][Line numbers]]
+  - [[#markdown][Markdown]]
 - [[#etc][Etc]]
   - [[#ivy][Ivy]]
   - [[#vertico][Vertico]]
@@ -323,12 +324,32 @@ If FRAME is omitted or nil, use currently selected frame."
 
 #+RESULTS:
 
-*** Keep quiet!
+*** Distraction Free modes
 
 #+BEGIN_SRC emacs-lisp
-(setq visible-bell t)
-(setq ring-bell-function 'ignore)
+(defun ews-distraction-free ()
+    "Distraction-free writing environment using Olivetti package."
+    (interactive)
+    (if (equal olivetti-mode nil)
+        (progn
+          (window-configuration-to-register 1)
+          (delete-other-windows)
+          (text-scale-set 2)
+          (olivetti-mode t))
+      (progn
+        (if (eq (length (window-list)) 1)
+            (jump-to-register 1))
+        (olivetti-mode 0)
+        (text-scale-set 0))))
+
+  (use-package olivetti
+    :demand t
+    :bind
+    (("<f9>" . ews-distraction-free)))
 #+END_SRC
+
+#+RESULTS:
+: ews-distraction-free
 
 ** Dashboard
 
@@ -379,7 +400,15 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 (setq mouse-wheel-scroll-amount '(3 ((shift) . 3))) ;; how many lines at a time
 (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq visible-bell t)
+(setq ring-bell-function 'ignore)
+(setq-default line-spacing 2)
+
+(add-hook 'text-mode-hook 'visual-line-mode) ;; line wrap for all text files
 #+END_SRC
+
+#+RESULTS:
+| visual-line-mode | text-mode-hook-identify |
 
 ** Modeline
 
@@ -410,12 +439,17 @@ TODO: change to a better, more functional mood line? Configuration?
 ** Theme
 
 Using modus-themes (https://protesilaos.com/emacs/modus-themes).
+
 #+BEGIN_SRC emacs-lisp
 (use-package modus-themes
     :ensure
     :init
     (setq	modus-themes-italic-constructs t
-            modus-themes-bold-constructs nil
+            modus-themes-bold-constructs t
+		modus-themes-mixed-fonts t
+		modus-themes-headings '((1 . (1.5))
+					(2 . (1.3))
+					(t . (1.1)))
             modus-themes-region '(bg-only no-extend))
     :config
     ;;(modus-themes-load-vivendi)             ; Dark theme
@@ -511,6 +545,15 @@ Using modus-themes (https://protesilaos.com/emacs/modus-themes).
 (nvmap :prefix "SPC"
 	"l t" '(cc/toggle-line-numbering :which-key "Toggle line numbering.")
 	"l d" 'display-line-numbers-mode :which-key "Display line numbers.")
+#+END_SRC
+
+** Markdown
+
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+	:ensure t
+	:mode ("\\.md" . gfm-mode)
+	:init (setq markdown-command "multimarkdown"))
 #+END_SRC
 
 * Etc
@@ -655,8 +698,17 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 	(define-key org-mode-map
 		(kbd "RET") 'org-return-indent)
 	(evil-define-key 'normal org-mode-map
-		(kbd "TAB") 'org-cycle))
+		(kbd "TAB") 'org-cycle)
+  :custom
+	(org-export-with-drawers nil)
+	(org-expert-with-todo-keywords nil)
+	(org-export-with-broken-links t)
+	(org-export-with-toc nil)
+	(org-export-with-smart-quotes t))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 *** Default file actions
 
@@ -670,8 +722,14 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 *** Org definitions
 
 #+BEGIN_SRC emacs-lisp
-;;(with-eval-after-load 'org       
-;;    (setq org-startup-indented t) ; Enable `org-indent-mode' by default
+(setq-default org-startup-indented t
+			org-pretty-entities t
+			org-use-sub-superscripts "{}"
+			org-hide-emphasis-markers t
+			org-startup-with-inline-images t
+			org-image-actual-width '(600))
+
+
 (add-hook 'org-mode-hook
 	(lambda ()
 		(visual-line-mode 1)))
