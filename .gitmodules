@@ -1,3 +1,9 @@
 [submodule "custom/bicep-mode"]
 	path = custom/bicep-mode
 	url = git@github.com:christiaan-janssen/bicep-mode.git
+[submodule "custom/copilot.el"]
+	path = custom/copilot.el
+	url = https://github.com/zerolfx/copilot.el
+[submodule "custom/straight.el"]
+	path = custom/straight.el
+	url = https://github.com/radian-software/straight.el.git
