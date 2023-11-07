@@ -728,7 +728,7 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 			org-use-sub-superscripts "{}"
 			org-hide-emphasis-markers t
 			org-startup-with-inline-images t
-			org-image-actual-width '(600))
+			org-image-actual-width '(800))
 
 
 (add-hook 'org-mode-hook
@@ -747,8 +747,11 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 	org-edit-src-content-indentation 0
 	org-adapt-indentation t)
 
-(setq org-image-actual-width 400)
+(setq org-image-actual-width 800)
 #+END_SRC
+
+#+RESULTS:
+: 800
 
 *** Agenda
 
@@ -1234,9 +1237,12 @@ The best Git implementation for Emacs.
 ** Co-pilot
 
 #+BEGIN_SRC emacs-lisp
+(require 'editorconfig)
 (use-package copilot
   :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-  :ensure t)
+    :ensure t
+    :init
+        (add-hook 'org-mode-hook 'copilot-mode))
 ;; you can utilize :map :hook and :config to customize copilot
 ;;(add-to-list 'load-path "~/.emacs.d/custom/copilot.el/copilot.el")
 ;;(use-package copilot)
