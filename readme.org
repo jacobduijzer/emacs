@@ -1237,25 +1237,48 @@ The best Git implementation for Emacs.
 ** Co-pilot
 
 #+BEGIN_SRC emacs-lisp
+
+;;(add-to-list 'load-path "/home/jacob/.emacs.d/custom/copilot.el")
 (require 'editorconfig)
 (use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
-    :ensure t
-    :init
-        (add-hook 'org-mode-hook 'copilot-mode))
-;; you can utilize :map :hook and :config to customize copilot
-;;(add-to-list 'load-path "~/.emacs.d/custom/copilot.el/copilot.el")
-;;(use-package copilot)
-    ;:load-path "~/.emacs.d/custom/copilot.el"
-	;;:ensure t
-	;;:init
-	;;(add-hook 'prog-mode-hook 'copilot-mode)
-    ;;(def;;ine-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-    ;;(def;;ine-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-    ;;(def;;ine-key copilot-completion-map (kbd "C-<return>") 'copilot-accept-completion))
+	:load-path "/home/jacob/.emacs.d/custom/copilot.el"
+    :bind (:map copilot-mode-map
+                ("<tab>" . my/copilot-tab)
+                ("s-n" . copilot-next-completion)
+                ("s-p" . copilot-previous-completion)
+                ("s-w" . copilot-accept-completion-by-word)
+                ("s-l" . copilot-accept-completion-by-line))
+    :config
+    (defun my/copilot-tab ()
+        (interactive)
+        (or (copilot-accept-completion)
+            (indent-for-tab-command)))
 
+    :hook
+    (prog-mode . copilot-mode))
+
+
+
+
+;;(use-package copilot
+;;  :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+;;    :ensure t
+;;    :init
+;;        (add-hook 'org-mode-hook 'copilot-mode))
+;;;; you can utilize :map :hook and :config to customize copilot
+;;;;(add-to-list 'load-path "~/.emacs.d/custom/copilot.el/copilot.el")
+;;;;(use-package copilot)
+;;    ;:load-path "~/.emacs.d/custom/copilot.el"
+;;	;;:ensure t
+;;	;;:init
+;;	;;(add-hook 'prog-mode-hook 'copilot-mode)
+;;    ;;(def;;ine-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+;;    ;;(def;;ine-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+;;    ;;(def;;ine-key copilot-completion-map (kbd "C-<return>") 'copilot-accept-completion))
+;;
 #+END_SRC
 #+RESULTS:
+: copilot-accept-completion-by-line
 
 ** Spielerei
 
