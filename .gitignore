@@ -54,3 +54,6 @@ readme.el
 
 # misc
 eln-cache/
+org-roam.db
+recentf
+transient/
