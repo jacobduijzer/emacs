@@ -780,6 +780,7 @@ Dial the GC threshold back down so that garbage collection happens more frequent
   :config
   (setq webjump-sites '(
 						("Google" . [simple-query "google.com" "google.com/search?q=" ""])
+						("GitHub" . [simple-query "github.com" "https://github.com/search?q=owner:jacobduijzer " "&type=repository"])
 						("YouTube" . [simple-query "youtube.com/feed/subscriptions" "youtube.com/results?search_query=" ""])
 )))
 #+end_src
