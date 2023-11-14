@@ -12,7 +12,6 @@
   - [[#general-keybindings][General Keybindings]]
   - [[#sane-defaults][Sane defaults]]
   - [[#set-theme][Set Theme]]
-  - [[#transparency][Transparency]]
   - [[#setting-fonts][Setting fonts]]
   - [[#nerd-icons][Nerd Icons]]
   - [[#zooming-inout][Zooming In/Out]]
@@ -47,6 +46,7 @@
   - [[#spell-checking][Spell checking]]
   - [[#runtime-performance][Runtime Performance]]
   - [[#commenting-lines][Commenting lines]]
+  - [[#webjump][Webjump]]
 - [[#trying-out][Trying out]]
   - [[#eat-terminal-emulation][Eat (terminal emulation)]]
 
@@ -226,12 +226,6 @@ Set gruvbox theme if you want some themes to try out doom-themes
       (load-theme 'gruvbox-dark-medium t)) ;; We need to add t to trust this package
 #+end_src
 
-** Transparency
-With Emacs version 29, true transparency has been added.
-#+begin_src emacs-lisp
-   ;; (add-to-list 'default-frame-alist '(alpha-background . 90)) ; For all new frames henceforth
-#+end_src
-
 ** Setting fonts
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
@@ -323,6 +317,8 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 * Custom functions
 
 ** Transparency for overlay editing
+
+Does not work for nixos, so disabled.
 #+begin_src emacs-lisp
         ;;    (defun toggle-transparency ()
         ;;   (interactive)
@@ -337,29 +333,25 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
         ;;          '(85 . 50) '(100 . 100)))))
         ;; (global-set-key (kbd "<f9>") 'toggle-transparency)
 
-         (defvar my-display-transparency nil)
-         (defun my-toggle-transparency ()
-           (interactive)
-           (if (eq my-display-transparency nil)
-             (progn
-               (set-frame-parameter nil 'alpha-background 50)
-               (set-frame-parameter nil 'alpha 50)
-                             (setq my-display-transparency 't))
-             (progn
-                     (set-frame-parameter nil 'alpha-background 100)
-                     (set-frame-parameter nil 'alpha 100)
-             (message "%s" my-display-transparency)
-             (setq my-display-transparency nil))))
-
-         (global-set-key (kbd "<f9>") 'my-toggle-transparency)
-
-(set-frame-parameter (selected-frame) 'alpha-background 40)
-(add-to-list 'default-frame-alist '(alpha-background . 40))
+;;         (defvar my-display-transparency nil)
+;;         (defun my-toggle-transparency ()
+;;           (interactive)
+;;           (if (eq my-display-transparency nil)
+;;             (progn
+;;               (set-frame-parameter nil 'alpha-background 50)
+;;               (set-frame-parameter nil 'alpha 50)
+;;                             (setq my-display-transparency 't))
+;;             (progn
+;;                     (set-frame-parameter nil 'alpha-background 100)
+;;                     (set-frame-parameter nil 'alpha 100)
+;;             (message "%s" my-display-transparency)
+;;             (setq my-display-transparency nil))))
+;;
+;;         (global-set-key (kbd "<f9>") 'my-toggle-transparency)
+;;
+;;(set-frame-parameter (selected-frame) 'alpha-background 40)
+;;(add-to-list 'default-frame-alist '(alpha-background . 40))
 #+end_src
-
-#+RESULTS:
-: ((alpha-background . 40) (alpha-background . 85) (vertical-scroll-bars))
-
 
 * Org
 
@@ -777,6 +769,23 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
+
+** Webjump
+
+#+begin_src emacs-lisp
+(use-package webjump
+  :defer
+  :ensure nil
+  :bind ("C-x /" . webjump)
+  :config
+  (setq webjump-sites '(
+						("Google" . [simple-query "google.com" "google.com/search?q=" ""])
+						("YouTube" . [simple-query "youtube.com/feed/subscriptions" "youtube.com/results?search_query=" ""])
+)))
+#+end_src
+
+#+RESULTS:
+: webjump
 
 * Trying out
 
