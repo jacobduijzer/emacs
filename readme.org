@@ -20,6 +20,10 @@
   - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
 - [[#custom-functions][Custom functions]]
   - [[#transparency-for-overlay-editing][Transparency for overlay editing]]
+  - [[#resizing-and-relocation-emacs][Resizing and relocation emacs]]
+    - [[#auto-resize-emacs][Auto resize emacs]]
+    - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
+    - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
 - [[#org][Org]]
   - [[#org-mode][Org-mode]]
   - [[#org-appear][Org Appear]]
@@ -52,6 +56,7 @@
   - [[#webjump][Webjump]]
 - [[#trying-out][Trying out]]
   - [[#eat-terminal-emulation][Eat (terminal emulation)]]
+  - [[#reading-e-books][Reading e-books]]
 
 * Global Emacs Configuration
 
@@ -184,11 +189,17 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
   (start/leader-keys
     "t" '(:ignore t :wk "Toggle")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-    "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")))
-#+end_src
+    "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)"))
+  (start/leader-keys
+	"w" '(:ignore t :wk "Screen size & position")
+	"w c" '(my/frame-recenter :wk "Center window")
+	"w m" '(:ignore t :wk "Move screen")
+	"w mc" '((lambda () (interactive)(my/frame-move 0.5 0.5)) :wk "Move to the center")
+  	"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
+  	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right") 
+)
 
-#+RESULTS:
-: t
+#+END_SRC
 
 
 ** Sane defaults
@@ -384,6 +395,87 @@ Does not work for nixos, so disabled.
 ;;(add-to-list 'default-frame-alist '(alpha-background . 40))
 #+end_src
 
+** Resizing and relocation emacs
+
+*** Auto resize emacs
+
+#+BEGIN_SRC emacs-lisp
+(defun my/frame-monitor-usable-height (factor &optional frame)
+"Return the usable height in pixels of the monitor of FRAME.
+FRAME can be a frame name, a terminal name, or a frame.
+If FRAME is omitted or nil, use currently selected frame.
+
+Uses the monitor's workarea. See `display-monitor-attributes-list'."
+    (cadddr (frame-monitor-workarea frame))
+    (truncate (* (cadddr (frame-monitor-workarea frame)) factor)))
+
+(defun my/frame-resize (&optional frame)
+    (interactive)
+    (set-frame-size (selected-frame) (truncate 1500) (my/frame-monitor-usable-height 0.4) t))
+;;(my/resize-and-center)
+#+END_SRC
+
+#+RESULTS:
+: my/frame-resize
+
+#+BEGIN_SRC emacs-lisp
+(defun my/frame-recenter (&optional frame)
+  "Center FRAME on the screen.
+FRAME can be a frame name, a terminal name, or a frame.
+If FRAME is omitted or nil, use currently selected frame."
+  (interactive)
+  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
+    (modify-frame-parameters
+     frame '((user-position . t) (top . 0.5) (left . 0.5)))))
+
+;;(my/frame-recenter)
+#+END_SRC
+
+#+RESULTS:
+: my/frame-recenter
+
+*** Set emacs' position on screen
+
+#+BEGIN_SRC emacs-lisp
+(defun my/frame-move (left top &optional frame)
+    " frame on the screen.
+    frame can be a frame name, a terminal name, or a frame.
+    if frame is omitted or nil, use currently selected frame."
+    (interactive)
+    (unless (eq 'maximised (frame-parameter nil 'fullscreen))
+  (modify-frame-parameters
+  frame `((user-position . t) (top . ,top) (left . ,left)))))
+
+(my/frame-move 0.9 0.9)
+#+END_SRC
+
+#+RESULTS:
+
+*** Resize and screen-location keybindings
+
+| COMMAND                | DESCRIPTION                     | KEYBINDING |
+|------------------------+---------------------------------+------------|
+| my/frame-resize        | /resize emacs do default/         | SPC s n    |
+| my/frame-move 0.5 0.5  | /move frame to center/            | SPC s cc   |
+| my/frame-move 0.5 0.5  | /move frame to center and resize/ | SPC s cr   |
+| my/frame-move 0.98 0.5 | /move frame to right/             | SPC s mr   |
+| my/frame-move 0.02 0.5 | /move frame to left/              | SPC s ml   |
+
+#+BEGIN_SRC emacs-lisp
+;;(nvmap :prefix "SPC"
+;;    "s r" '(my/frame-recenter :which-key "Recenter window")
+;;    "s cc" '((lambda () (interactive) (my/frame-move 0.5 0.5)) :which-key "Center window.")
+;;    "s cr" '((lambda () (interactive) (my/frame-resize) (my/frame-move 0.5 0.5)) :which-key "Center & Resize window.")
+;;    "s mr" '(lambda () (interactive) (my/frame-move 0.98 0.5) :which-key "Move window to the right.")
+;;    "s ml" '(lambda () (interactive) (my/frame-move 0.02 0.5) :which-key "Move window to the left.")
+;;)
+
+;; resize and reload on load
+(my/frame-resize)
+(my/frame-move 0.5 0.5)
+
+#+END_SRC
+
 * Org
 
 ** Org-mode
@@ -419,8 +511,8 @@ Still trying this out, not sure if I like it.
 
 #+BEGIN_SRC emacs-lisp
 (use-package org-modern
-  :hook
-  (org-mode . global-org-modern-mode)
+  ;;:hook
+  ;;(org-mode . global-org-modern-mode)
   :custom
   (org-modern-keyword nil)
   (org-modern-checkbox nil)
@@ -627,7 +719,7 @@ TODO: Create table with commands
 #+END_SRC
 
 #+RESULTS:
-: ews-distraction-free
+: my/distraction-free
 
 ** Blogging with Hugo
 
@@ -882,4 +974,14 @@ We setup eat with eshell if you want to use bash, zsh etc.. Check out their git 
 (use-package eat
   :hook('eshell-load-hook #'eat-eshell-mode))
 #+end_src
+
+#+RESULTS:
+
+** Reading e-books
+
+#+BEGIN_SRC emacs-lisp
+(use-package nov
+  :init
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
+#+END_SRC
 
