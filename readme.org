@@ -19,7 +19,7 @@
   - [[#dashboard][Dashboard]]
   - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
 - [[#custom-functions][Custom functions]]
-  - [[#transparency-for-overlay-editing][Transparency for overlay editing]]
+  - [[#transparancy][Transparancy]]
   - [[#resizing-and-relocation-emacs][Resizing and relocation emacs]]
     - [[#auto-resize-emacs][Auto resize emacs]]
     - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
@@ -56,7 +56,6 @@
   - [[#webjump][Webjump]]
 - [[#trying-out][Trying out]]
   - [[#eat-terminal-emulation][Eat (terminal emulation)]]
-  - [[#reading-e-books][Reading e-books]]
 
 * Global Emacs Configuration
 
@@ -66,6 +65,9 @@ Make startup faster by reducing the frequency of garbage collection. This will b
     ;; The default is 800 kilobytes.  Measured in bytes.
     (setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
+
+#+RESULTS:
+: 50000000
 
 ** Use Package
 I used the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc..) are useful if you want to
@@ -86,6 +88,9 @@ With Emacs 29 use-package is now build in.
                              ("elpa" . "https://elpa.gnu.org/packages/")
                              ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
 #+end_src
+
+#+RESULTS:
+: ((melpa . https://melpa.org/packages/) (org . https://orgmode.org/elpa/) (elpa . https://elpa.gnu.org/packages/) (nongnu . https://elpa.nongnu.org/nongnu/))
 
 ** Load Evil Mode
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
@@ -112,6 +117,8 @@ You can toggle evil mode with ctrl z (emacs-mode)
       (define-key evil-motion-state-map (kbd "RET") nil)
       (define-key evil-motion-state-map (kbd "TAB") nil))
 #+end_src
+
+#+RESULTS:
 
 ** General Keybindings
 General is a keybinding framework to set keybindings easily.
@@ -190,16 +197,21 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
     "t" '(:ignore t :wk "Toggle")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
     "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)"))
+  
   (start/leader-keys
 	"w" '(:ignore t :wk "Screen size & position")
 	"w c" '(my/frame-recenter :wk "Center window")
 	"w m" '(:ignore t :wk "Move screen")
 	"w mc" '((lambda () (interactive)(my/frame-move 0.5 0.5)) :wk "Move to the center")
   	"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
-  	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right") 
-)
+  	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right")
+	"w t" '((lambda () (interactive)(toggle-transparency)) :wk "Toggle transparency")
+))
 
 #+END_SRC
+
+#+RESULTS:
+: t
 
 
 ** Sane defaults
@@ -268,7 +280,7 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
-                        :font "JetBrains Mono" ;; Set your favorite type of font or download JetBrains Mono
+                        :font "JetBrainsMono Nerd Font" ;; Set your favorite type of font or download JetBrains Mono
                         :height 120
                         :weight 'medium)
     ;; This sets the default font on all graphical frames created after restarting Emacs.
@@ -300,6 +312,9 @@ While nerd-icons supports both GUI and TUI.
       :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
+#+RESULTS:
+| nerd-icons-ibuffer-mode |
+
 ** Zooming In/Out
 You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTRL plus the mouse wheel for zooming in/out.
 #+begin_src emacs-lisp
@@ -316,14 +331,24 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
 ** Modeline
 Replace the default modeline with a pretier more useful.
 #+begin_src emacs-lisp
-    (use-package doom-modeline
-      :init (doom-modeline-mode 1)
-      :config
-      (setq doom-modeline-height 25      ;; sets modeline height
-            doom-modeline-bar-width 5    ;; sets right bar width
-            doom-modeline-persp-name t   ;; adds perspective name to modeline
-            doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
+;;    (use-package doom-modeline
+;;      :init (doom-modeline-mode 1)
+;;      :config
+;;      (setq doom-modeline-height 25      ;; sets modeline height
+;;            doom-modeline-bar-width 5    ;; sets right bar width
+;;            doom-modeline-persp-name t   ;; adds perspective name to modeline
+;;            doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
 #+end_src
+
+Testing Telephone Line (again).
+
+#+BEGIN_SRC emacs-lisp
+(use-package telephone-line)
+(telephone-line-mode 1)
+#+END_SRC
+
+#+RESULTS:
+: t
 
 ** Dashboard 
 
@@ -358,42 +383,28 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 
 * Custom functions
 
-** Transparency for overlay editing
+** Transparancy
 
-Does not work for nixos, so disabled.
 #+begin_src emacs-lisp
-        ;;    (defun toggle-transparency ()
-        ;;   (interactive)
-        ;;   (let ((alpha (frame-parameter nil 'alpha)))
-        ;;     (set-frame-parameter
-        ;;      nil 'alpha
-        ;;      (if (eql (cond ((numberp alpha) alpha)
-        ;;                     ((numberp (cdr alpha)) (cdr alpha))
-        ;;                     ;; Also handle undocumented (<active> <inactive>) form.
-        ;;                     ((numberp (cadr alpha)) (cadr alpha)))
-        ;;               100)
-        ;;          '(85 . 50) '(100 . 100)))))
-        ;; (global-set-key (kbd "<f9>") 'toggle-transparency)
+;;(set-frame-parameter nil 'alpha-background 100)
+;;(add-to-list 'default-frame-alist '(alpha-background 100))
 
-;;         (defvar my-display-transparency nil)
-;;         (defun my-toggle-transparency ()
-;;           (interactive)
-;;           (if (eq my-display-transparency nil)
-;;             (progn
-;;               (set-frame-parameter nil 'alpha-background 50)
-;;               (set-frame-parameter nil 'alpha 50)
-;;                             (setq my-display-transparency 't))
-;;             (progn
-;;                     (set-frame-parameter nil 'alpha-background 100)
-;;                     (set-frame-parameter nil 'alpha 100)
-;;             (message "%s" my-display-transparency)
-;;             (setq my-display-transparency nil))))
-;;
-;;         (global-set-key (kbd "<f9>") 'my-toggle-transparency)
-;;
-;;(set-frame-parameter (selected-frame) 'alpha-background 40)
-;;(add-to-list 'default-frame-alist '(alpha-background . 40))
+ (defun toggle-transparency ()
+   (interactive)
+   (let ((alpha (frame-parameter nil 'alpha)))
+     (set-frame-parameter
+      nil 'alpha
+      (if (eql (cond ((numberp alpha) alpha)
+                     ((numberp (cdr alpha)) (cdr alpha))
+                     ;; Also handle undocumented (<active> <inactive>) form.
+                     ((numberp (cadr alpha)) (cadr alpha)))
+               100)
+          '(50 . 50) '(100 . 100)))))
+ (global-set-key (kbd "C-c t") 'toggle-transparency)
 #+end_src
+
+#+RESULTS:
+: toggle-transparency
 
 ** Resizing and relocation emacs
 
@@ -475,6 +486,7 @@ If FRAME is omitted or nil, use currently selected frame."
 (my/frame-move 0.5 0.5)
 
 #+END_SRC
+
 
 * Org
 
@@ -754,9 +766,12 @@ Projectile is a project interaction library for Emacs.
       (projectile-mode 1)
       :init
       (setq projectile-switch-project-action #'projectile-dired)
-      (setq projectile-project-search-path '(("~/Projects/github" . 1) ("~/Projects/Spielerei" . 1) ("~/Projects/work" . 1)))) ;; . 1 means only search first subdirectory level for projects
+      (setq projectile-project-search-path '(("~/Projects/Github" . 1) ("~/Code/Spielerei" . 1) ("~/Code/ITnCare" . 1) ("~/Code/Rockstars")))) ;; . 1 means only search first subdirectory level for projects
     ;; Use Bookmarks for non git projects
 #+end_src
+
+#+RESULTS:
+: t
 
 ** Company
 Company is a text completion framework for Emacs. The name stands for “complete anything”.
@@ -975,13 +990,4 @@ We setup eat with eshell if you want to use bash, zsh etc.. Check out their git 
   :hook('eshell-load-hook #'eat-eshell-mode))
 #+end_src
 
-#+RESULTS:
-
-** Reading e-books
-
-#+BEGIN_SRC emacs-lisp
-(use-package nov
-  :init
-  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
-#+END_SRC
 
