@@ -9,7 +9,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(eat nerd-icons-ibuffer nerd-icons-dired toc-org org-bullets vterm writeroom-mode polymode poly evil-collection which-key vertico use-package telephone-line smart-mode-line rust-mode restclient plantuml-mode ox-reveal ox-hugo ox-gfm org-roam org-modern org-make-toc ob-mermaid no-littering mood-one-theme mood-line modus-themes marginalia latex-extra impatient-mode general format-all evil emojify doom-modeline diminish dashboard counsel-projectile all-the-icons)))
+   '(consule consult-org-roam consult-ripgrep deadgrep ef-themes eat nerd-icons-ibuffer nerd-icons-dired toc-org org-bullets vterm writeroom-mode polymode poly evil-collection which-key vertico use-package telephone-line smart-mode-line rust-mode restclient plantuml-mode ox-reveal ox-hugo ox-gfm org-roam org-modern org-make-toc ob-mermaid no-littering mood-one-theme mood-line modus-themes marginalia latex-extra impatient-mode general format-all evil emojify doom-modeline diminish dashboard counsel-projectile all-the-icons)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

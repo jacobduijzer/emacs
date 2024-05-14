@@ -37,7 +37,9 @@
   - [[#enabling-org-bullets][Enabling Org Bullets]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#org-roam][Org Roam]]
+  - [[#search-org-roam][Search org-roam]]
 - [[#other-packages][Other packages]]
+  - [[#consult][Consult]]
   - [[#oliveti][Oliveti]]
   - [[#blogging-with-hugo][Blogging with Hugo]]
   - [[#magit][Magit]]
@@ -206,6 +208,9 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
   	"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
   	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right")
 	"w t" '((lambda () (interactive)(toggle-transparency)) :wk "Toggle transparency")
+	"w s" '(:ignore t :wk "Window Split")
+	"w sb" '((lambda () (interactive)(split-window-below)) :wk "Split window below")
+	"w sr" '((lambda () (interactive)(split-window-right)) :wk "Split window right")
 ))
 
 #+END_SRC
@@ -540,7 +545,7 @@ Still trying this out, not sure if I like it.
 (setq org-file-apps
   (quote
     ((auto-mode . emacs)
-    ("\\.x?html?\\'" . "/etc/profiles/per-user/jacob/bin/vivaldi %s"))))
+    ("\\.x?html?\\'" . "/usr/bin/vivaldi-stable %s"))))
 #+END_SRC
 
 ** Org definitions
@@ -703,7 +708,59 @@ TODO: Create table with commands
 								("To do")))))
 #+END_SRC
 
+** Search org-roam
+
+#+BEGIN_SRC emacs-lisp
+'(use-package deadgrep)
+'(global-set-key (kbd "<f5>") #'deadgrep)
+'(use-package consult-ripgrep)
+'(defun org-roam-search-args ()
+'  "Search org-roam directory using consult-ripgrep. With live-preview." 
+'  (let ((consult-ripgrep-args "rg --null --ignore-case --type org --line-buffered --color=never --max-columns=500 --no-heading --line-number"))
+'    (consult-ripgrep org-roam-directory)))
+'
+'(defun headlong ()
+'  "Make the current minibuffer completion exit when there is 1 candidate."
+'  (add-hook 'after-change-functions
+'            (lambda (&rest _)
+'              (let* ((all (completion-all-completions
+'                           (minibuffer-contents)
+'                           minibuffer-completion-table
+'                           minibuffer-completion-predicate
+'                           (max 0 (- (point) (minibuffer-prompt-end)))))
+'                     (last (last all)))
+'                (when last (setcdr last nil))
+'                (when (and all (null (cdr all)))
+'                  (delete-minibuffer-contents)
+'                  (insert (car all))
+'                  (exit-minibuffer))))
+'            nil t))
+'
+'(defun org-roam-search ()
+'  (interactive)
+'  (minibuffer-with-setup-hook #'headlong (funcall #'org-roam-search-args)))
+'
+'(global-set-key (kbd "<f5>") 'org-roam-search)
+'(defun bms/org-roam-rg-search ()
+'  "Search org-roam directory using consult-ripgrep. With live-preview."
+'  (interactive)
+'  (let ((consult-ripgrep-command "rg --null --ignore-case --type org --line-buffered --color=always --max-columns=500 --no-heading --line-number . -e ARG OPTS"))
+'    (consult-ripgrep org-roam-directory))r
+'(global-set-key (kbd "<f5>") 'bms/rg-roam-rg-search)
+#+END_SRC
+
+#+RESULTS:
+: bms/org-roam-rg-search
+
 * Other packages
+
+** Consult
+
+#+BEGIN_SRC emacs-lisp
+'(use-package consult)
+#+END_SRC
+
+#+RESULTS:
 
 ** Oliveti
 #+BEGIN_SRC emacs-lisp
@@ -801,42 +858,77 @@ Use M-n and M-p to select, <tab> to complete.
 Ivy, a generic completion mechanism for Emacs.
 Counsel, a collection of Ivy-enhanced versions of common Emacs commands.
 Ivy-rich allows us to add descriptions alongside the commands in M-x.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
+#+END_SRC
+
 #+begin_src emacs-lisp
-    (use-package counsel
-      :after ivy
-      :diminish
-      :config (counsel-mode))
-
-    (use-package ivy
-      :bind
-      ;; ivy-resume resumes the last Ivy-based completion.
-      (("C-c C-r" . ivy-resume)
-       ("C-x B" . ivy-switch-buffer-other-window))
-      :diminish
-      :custom
-      (setq ivy-use-virtual-buffers t)
-      (setq ivy-count-format "(%d/%d) ")
-      (setq enable-recursive-minibuffers t)
-      :config
-      (ivy-mode))
-
-    (use-package nerd-icons-ivy-rich
-      :init
-      (nerd-icons-ivy-rich-mode 1)
-      (ivy-rich-mode 1))
-
-    (use-package ivy-rich
-      :after ivy
-      :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-      :custom
-      (ivy-virtual-abbreviate 'full
-                              ivy-rich-switch-buffer-align-virtual-buffer t
-                              ivy-rich-path-style 'abbrev)
-      :config
-      (ivy-set-display-transformer 'ivy-switch-buffer
-                                   'ivy-rich-switch-buffer-transformer))
-    (use-package counsel-projectile
-      :config (counsel-projectile-mode))
+'    (use-package counsel
+'      :after ivy
+'      :diminish
+'      :config (counsel-mode))
+'
+'    (use-package ivy
+'      :bind
+'      ;; ivy-resume resumes the last Ivy-based completion.
+'      (("C-c C-r" . ivy-resume)
+'       ("C-x B" . ivy-switch-buffer-other-window))
+'      :diminish
+'      :custom
+'      (setq ivy-use-virtual-buffers t)
+'      (setq ivy-count-format "(%d/%d) ")
+'      (setq enable-recursive-minibuffers t)
+'      :config
+'      (ivy-mode))
+'
+'    (use-package nerd-icons-ivy-rich
+'      :init
+'      (nerd-icons-ivy-rich-mode 1)
+'      (ivy-rich-mode 1))
+'
+'    (use-package ivy-rich
+'      :after ivy
+'      :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+'      :custom
+'      (ivy-virtual-abbreviate 'full
+'                              ivy-rich-switch-buffer-align-virtual-buffer t
+'                              ivy-rich-path-style 'abbrev)
+'      :config
+'      (ivy-set-display-transformer 'ivy-switch-buffer
+'                                   'ivy-rich-switch-buffer-transformer))
+'    (use-package counsel-projectile
+'      :config (counsel-projectile-mode))
 #+end_src
 
 ** DIMINISH
@@ -881,10 +973,10 @@ Which-key is a helper utility for keychords (which key to press)
 (use-package plantuml-mode
   :ensure t
   :config
-  (setq plantuml-jar-path "/nix/store/bmq93dqb6a9w7ip0qms7gzijbrajrsrp-plantuml-1.2023.10/lib/plantuml.jar")
-  (setq org-plantuml-jar-path "/nix/store/bmq93dqb6a9w7ip0qms7gzijbrajrsrp-plantuml-1.2023.10/lib/plantuml.jar")
+  (setq plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
+  (setq org-plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
   (setq plantuml-default-exec-mode 'jar)
-    (setq plantuml-executable-path "/etc/profiles/per-user/jacob/bin/plantuml")
+  (setq plantuml-executable-path "/usr/bin/plantuml")
   (setq plantuml-default-exec-mode 'executable)
 
   (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
