@@ -285,7 +285,7 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 
 #+begin_src emacs-lisp
     (set-face-attribute 'default nil
-                        :font "JetBrainsMono Nerd Font" ;; Set your favorite type of font or download JetBrains Mono
+                        :font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
                         :height 120
                         :weight 'medium)
     ;; This sets the default font on all graphical frames created after restarting Emacs.
