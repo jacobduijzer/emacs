@@ -19,6 +19,7 @@
   - [[#dashboard][Dashboard]]
   - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
 - [[#custom-functions][Custom functions]]
+  - [[#determine-operating-system][Determine Operating System]]
   - [[#transparancy][Transparancy]]
   - [[#resizing-and-relocation-emacs][Resizing and relocation emacs]]
     - [[#auto-resize-emacs][Auto resize emacs]]
@@ -48,7 +49,6 @@
   - [[#ivy-counsel][Ivy (counsel)]]
   - [[#diminish][DIMINISH]]
   - [[#which-key][WHICH-KEY]]
-  - [[#nix-mode][Nix mode]]
   - [[#plantuml][PlantUML]]
   - [[#gherkin][Gherkin]]
   - [[#yasnippet][YASnippet]]
@@ -64,8 +64,8 @@
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
 #+begin_src emacs-lisp
-    ;; The default is 800 kilobytes.  Measured in bytes.
-    (setq gc-cons-threshold (* 50 1000 1000))
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
 
 #+RESULTS:
@@ -82,13 +82,13 @@ In my experience Package.el is not slow and gets the job done.
 To update/upgrade packages, use the package-upgrade-all command.
 With Emacs 29 use-package is now build in.
 #+begin_src emacs-lisp
-    (require 'package)
-    (require 'use-package) ;; requires package.el and use-package so we can use it
-    (setq use-package-always-ensure t) ;; always ensures that a package is installed
-    (setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
-                             ("org" . "https://orgmode.org/elpa/")
-                             ("elpa" . "https://elpa.gnu.org/packages/")
-                             ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
+(require 'package)
+(require 'use-package) ;; requires package.el and use-package so we can use it
+(setq use-package-always-ensure t) ;; always ensures that a package is installed
+(setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
+                            ("org" . "https://orgmode.org/elpa/")
+                            ("elpa" . "https://elpa.gnu.org/packages/")
+                            ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
 #+end_src
 
 #+RESULTS:
@@ -99,25 +99,25 @@ Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The V
 Note: To paste without copy (yank) selected text use P (shift P evil-paste-before), because default is evil-paste-after.
 You can toggle evil mode with ctrl z (emacs-mode)
 #+begin_src emacs-lisp
-    (use-package evil
-      :init ;; tweak evil's configuration before loading it
-      (setq evil-want-keybinding nil) ;; Disable evil bindings in other modes (It's not consistent and not good)
-      (setq evil-want-C-u-scroll t) ;; Set  C-u to scrool up
-      (setq evil-want-C-i-jump nil) ;; Disables C-i jump
-      (setq evil-undo-system 'undo-redo) ;; C-r to redo
-      (setq org-return-follows-link  t) ;; Sets RETURN key in org-mode to follow links
-      (evil-mode))
-    (use-package evil-collection
-      :after evil
-      :config
-      ;; Setting where to use evil-collection
-      (setq evil-collection-mode-list '(dired ibuffer magiti dashboard))
-      (evil-collection-init))
-    ;; Unmap keys in 'evil-maps. If not done, (setq org-return-follows-link t) will not work
-    (with-eval-after-load 'evil-maps
-      (define-key evil-motion-state-map (kbd "SPC") nil)
-      (define-key evil-motion-state-map (kbd "RET") nil)
-      (define-key evil-motion-state-map (kbd "TAB") nil))
+(use-package evil
+    :init ;; tweak evil's configuration before loading it
+    (setq evil-want-keybinding nil) ;; Disable evil bindings in other modes (It's not consistent and not good)
+    (setq evil-want-C-u-scroll t) ;; Set  C-u to scrool up
+    (setq evil-want-C-i-jump nil) ;; Disables C-i jump
+    (setq evil-undo-system 'undo-redo) ;; C-r to redo
+    (setq org-return-follows-link  t) ;; Sets RETURN key in org-mode to follow links
+    (evil-mode))
+(use-package evil-collection
+    :after evil
+    :config
+    ;; Setting where to use evil-collection
+    (setq evil-collection-mode-list '(dired ibuffer magiti dashboard))
+    (evil-collection-init))
+;; Unmap keys in 'evil-maps. If not done, (setq org-return-follows-link t) will not work
+(with-eval-after-load 'evil-maps
+    (define-key evil-motion-state-map (kbd "SPC") nil)
+    (define-key evil-motion-state-map (kbd "RET") nil)
+    (define-key evil-motion-state-map (kbd "TAB") nil))
 #+end_src
 
 #+RESULTS:
@@ -151,10 +151,8 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
     "f r" '(counsel-recentf :wk "Recent files"))
 
   (start/leader-keys
-	)
-  (start/leader-keys
     "b" '(:ignore t :wk "Buffer Bookmarks")
-    "b b" '(switch-to-buffer :wk "Switch buffer")
+    "b b" '(ivy-switch-buffer :wk "Switch buffer")
     "b k" '(kill-this-buffer :wk "Kill this buffer")
     "b i" '(ibuffer :wk "Ibuffer")
     "b n" '(next-buffer :wk "Next buffer")
@@ -221,33 +219,37 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 
 ** Sane defaults
 #+begin_src emacs-lisp
-    (delete-selection-mode 1)    ;; You can select text and delete it by typing.
-    (electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
-    (electric-pair-mode 1)       ;; Turns on automatic parens pairing
+(set-language-environment "UTF-8")
+(delete-selection-mode 1)    ;; You can select text and delete it by typing.
+(electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
+(electric-pair-mode 1)       ;; Turns on automatic parens pairing
 
-    (global-auto-revert-mode t)  ;; Automatically reload file and show changes if the file has changed
-    (global-display-line-numbers-mode 1) ;; Display line numbers
-    (global-visual-line-mode t)  ;; Enable truncated lines
-    (menu-bar-mode -1)           ;; Disable the menu bar
-    (scroll-bar-mode -1)         ;; Disable the scroll bar
-    (tool-bar-mode -1)           ;; Disable the tool bar
+(global-auto-revert-mode t)  ;; Automatically reload file and show changes if the file has changed
+(global-display-line-numbers-mode 1) ;; Display line numbers
+(global-visual-line-mode t)  ;; Enable truncated lines
+(menu-bar-mode -1)           ;; Disable the menu bar
+(scroll-bar-mode -1)         ;; Disable the scroll bar
+(tool-bar-mode -1)           ;; Disable the tool bar
 
-    (setq mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-    (setq scroll-conservatively 10) ;; Smooth scrolling when going down with scroll margin
-    (setq scroll-margin 8)
+(setq mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
+(setq scroll-conservatively 10) ;; Smooth scrolling when going down with scroll margin
+(setq scroll-margin 8)
 
-    (setq make-backup-files nil) ; Stop creating ~ backup files
-    (global-set-key [escape] 'keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-    (blink-cursor-mode 0) ;; Don't blink cursor
-    (add-hook 'prog-mode-hook (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
+(setq make-backup-files nil) ; Stop creating ~ backup files
+(global-set-key [escape] 'keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
+(blink-cursor-mode 0) ;; Don't blink cursor
+(add-hook 'prog-mode-hook (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
 
-    (setq org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
-    (setq-default tab-width 4)
+(setq org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
+(setq-default tab-width 4)
 
-    (fset 'yes-or-no-p 'y-or-n-p) ; use y or n instead of yes or no
-    (setq visible-bell 'visual)
-    (setq ring-bell-function 'ignore)
+(setopt use-short-answers t) ;; Use y/n instead of yes/no
+(setq visible-bell 'visual)
+(setq ring-bell-function 'ignore)
 #+end_src
+
+#+RESULTS:
+: ignore
 
 ** Set Theme
 
@@ -284,15 +286,15 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 | mixed-pitch-mode | text-mode-hook-identify |
 
 #+begin_src emacs-lisp
-    (set-face-attribute 'default nil
-                        :font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
-                        :height 120
-                        :weight 'medium)
-    ;; This sets the default font on all graphical frames created after restarting Emacs.
-    ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-    ;; are not right unless I also add this method of setting the default font.
-    ;; (add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
-    (setq-default line-spacing 2)
+(set-face-attribute 'default nil
+                    :font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
+                    :height 120
+                    :weight 'medium)
+;; This sets the default font on all graphical frames created after restarting Emacs.
+;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
+;; are not right unless I also add this method of setting the default font.
+;; (add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
+(setq-default line-spacing 2)
 #+end_src
 
 #+RESULTS:
@@ -307,14 +309,14 @@ Don't forget to use nerd-icons-install-fonts.
 We use Nerd icons because it has more, better icons and all-the-icons only supports GUI.
 While nerd-icons supports both GUI and TUI.
 #+begin_src emacs-lisp
-    (use-package nerd-icons
-      :if (display-graphic-p))
+(use-package nerd-icons
+    :if (display-graphic-p))
 
-    (use-package nerd-icons-dired
-      :hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
+(use-package nerd-icons-dired
+    :hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
 
-    (use-package nerd-icons-ibuffer
-      :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+(use-package nerd-icons-ibuffer
+    :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
 #+RESULTS:
@@ -323,11 +325,11 @@ While nerd-icons supports both GUI and TUI.
 ** Zooming In/Out
 You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTRL plus the mouse wheel for zooming in/out.
 #+begin_src emacs-lisp
-    (global-set-key (kbd "C-+") 'text-scale-increase)
-    (global-set-key (kbd "C--") 'text-scale-decrease)
-	(global-set-key (kbd "C-0") 'text-scale-set)
-    (global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
-    (global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-set)
+(global-set-key (kbd "<C-wheel-up>") 'text-scale-increase)
+(global-set-key (kbd "<C-wheel-down>") 'text-scale-decrease)
 #+end_src
 
 #+RESULTS:
@@ -379,6 +381,9 @@ Testing Telephone Line (again).
             (bookmarks . "book"))))
 #+end_src
 
+#+RESULTS:
+: t
+
 ** Dashboard in Emacsclient
 This setting ensures that emacsclient always opens on *dashboard* rather than *scratch*.
 
@@ -386,7 +391,23 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+end_src
 
+#+RESULTS:
+| lambda | nil | (get-buffer *dashboard*) |
+
 * Custom functions
+
+** Determine Operating System
+
+#+BEGIN_SRC emacs-lisp
+(defconst on-linux (string-equal system-type "gnu/linux"))
+(defconst on-windows (string-equal system-type "windows-nt"))
+(defconst on-mac (string-equal system-type "darwin"))
+
+;;(describe-variable on-windows)
+#+END_SRC
+
+#+RESULTS:
+: on-mac
 
 ** Transparancy
 
@@ -462,16 +483,17 @@ If FRAME is omitted or nil, use currently selected frame."
   (modify-frame-parameters
   frame `((user-position . t) (top . ,top) (left . ,left)))))
 
-(my/frame-move 0.9 0.9)
+;;(my/frame-move 0.9 0.9)
 #+END_SRC
 
 #+RESULTS:
+: my/frame-move
 
 *** Resize and screen-location keybindings
 
 | COMMAND                | DESCRIPTION                     | KEYBINDING |
 |------------------------+---------------------------------+------------|
-| my/frame-resize        | /resize emacs do default/         | SPC s n    |
+| y/frame-resize         | /resize emacs do default/         | SPC s n    |
 | my/frame-move 0.5 0.5  | /move frame to center/            | SPC s cc   |
 | my/frame-move 0.5 0.5  | /move frame to center and resize/ | SPC s cr   |
 | my/frame-move 0.98 0.5 | /move frame to right/             | SPC s mr   |
@@ -491,6 +513,8 @@ If FRAME is omitted or nil, use currently selected frame."
 (my/frame-move 0.5 0.5)
 
 #+END_SRC
+
+#+RESULTS:
 
 
 * Org
@@ -514,6 +538,9 @@ If FRAME is omitted or nil, use currently selected frame."
   (org-export-with-smart-quotes t))
 #+END_SRC
 
+#+RESULTS:
+: t
+
 ** Org Appear
 
 #+BEGIN_SRC emacs-lisp
@@ -534,10 +561,24 @@ Still trying this out, not sure if I like it.
   (org-modern-keyword nil)
   (org-modern-checkbox nil)
   (org-modern-table nil))
+
+;;(add-hook 'org-mode-hook #'org-modern-mode)
+
+;;(setq
+;;	org-auto-align-tags nil
+;;	org-tags-column 0
+;;	org-catch-invisible-edits 'show-and-error
+;;	org-special-ctrl-a/e t
+;;	org-insert-heading-respect-content t
+;;	org-hide-emphasis-markers t
+;;	org-pretty-entities t)
+
+(with-eval-after-load 'org (global-org-modern-mode))
+
 #+END_SRC
 
 #+RESULTS:
-| global-org-modern-mode | org-appear-mode | org-tempo-setup | (lambda nil (org-bullets-mode 1)) | org-indent-mode | toc-org-enable | (lambda nil (visual-line-mode 1)) | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+: t
 
 ** Default file actions
 
@@ -547,6 +588,9 @@ Still trying this out, not sure if I like it.
     ((auto-mode . emacs)
     ("\\.x?html?\\'" . "/usr/bin/vivaldi-stable %s"))))
 #+END_SRC
+
+#+RESULTS:
+: ((auto-mode . emacs) (\.x?html?\' . /usr/bin/vivaldi-stable %s))
 
 ** Org definitions
 
@@ -577,6 +621,9 @@ Still trying this out, not sure if I like it.
 (setq org-image-actual-width 800)
 #+END_SRC
 
+#+RESULTS:
+: 800
+
 ** Auto update images
 
 #+BEGIN_SRC emacs-lisp
@@ -585,6 +632,10 @@ Still trying this out, not sure if I like it.
             (when org-inline-image-overlays
               (org-redisplay-inline-images))))
 #+END_SRC
+
+#+RESULTS:
+| lambda | nil | (when org-inline-image-overlays (org-redisplay-inline-images))       |
+| lambda | nil | (if org-inline-image-overlays (progn (org-redisplay-inline-images))) |
 
 ** Agenda
 
@@ -598,55 +649,68 @@ Still trying this out, not sure if I like it.
 #+END_SRC
 
 #+RESULTS:
+: 1
 
 ** Alerts / Notifications
 
 Shows D-Bus reminders for org files. To blacklist items, add a "PERSONAL" tag.
 
-    #+BEGIN_SRC emacs-lisp
-    ;;    (use-package org-alert
-    ;;  :ensure t
-    ;;  :custom (alert-default-style 'notifications)
-    ;;  :config
-    ;;  (setq org-alert-interval 300
-    ;;    org-alert-notification-title "Org Alert Reminders!")
-    ;;  (org-alert-enable))
+#+BEGIN_SRC emacs-lisp
+;;    (use-package org-alert
+;;  :ensure t
+;;  :custom (alert-default-style 'notifications)
+;;  :config
+;;  (setq org-alert-interval 300
+;;    org-alert-notification-title "Org Alert Reminders!")
+;;  (org-alert-enable))
 
-    ;; More advanced package org-wild-notifier
-    (use-package org-wild-notifier
-            :ensure t
-            :custom
-            (alert-default-style 'notifications)
-            (org-wild-notifier-alert-time '(1 15 30))
-            (org-wild-notifier-keyword-whitelist nil)
-            (org-wild-notifier-tags-blacklist '("PERSONAL"))
-            (org-wild-notifier-notification-title "Org Reminder!")
-            :config
-            (org-wild-notifier-mode 1))
-    #+END_SRC
+;; More advanced package org-wild-notifier
+(use-package org-wild-notifier
+        :ensure t
+        :custom
+        (alert-default-style 'notifications)
+        (org-wild-notifier-alert-time '(1 15 30))
+        (org-wild-notifier-keyword-whitelist nil)
+        (org-wild-notifier-tags-blacklist '("PERSONAL"))
+        (org-wild-notifier-notification-title "Org Reminder!")
+        :config
+        (org-wild-notifier-mode 1))
+#+END_SRC
+
+#+RESULTS:
+: t
 
 ** Enabling Table of Contents
 #+begin_src emacs-lisp
-    (use-package toc-org
-      :commands toc-org-enable
-      :init (add-hook 'org-mode-hook 'toc-org-enable))
+(use-package toc-org
+    :commands toc-org-enable
+    :init (add-hook 'org-mode-hook 'toc-org-enable))
 #+end_src
+
+#+RESULTS:
+| #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | (lambda nil (org-bullets-mode 1)) | org-indent-mode | toc-org-enable | (lambda nil (visual-line-mode 1)) | org-appear-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
 ** Enabling Org Bullets
 Org-bullets gives us attractive bullets rather than asterisks.
 #+begin_src emacs-lisp
-    (add-hook 'org-mode-hook 'org-indent-mode)
-    (use-package org-bullets)
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+;;(add-hook 'org-mode-hook 'org-indent-mode)
+;;(use-package org-bullets)
+;;(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
+
+#+RESULTS:
+| #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | (lambda nil (org-bullets-mode 1)) | org-indent-mode | toc-org-enable | (lambda nil (visual-line-mode 1)) | org-appear-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
 ** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can be enabled.
 Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
 #+begin_src emacs-lisp
-    (with-eval-after-load 'org
-      (require 'org-tempo))
+(with-eval-after-load 'org
+    (require 'org-tempo))
 #+end_src
+
+#+RESULTS:
+: org-tempo
 
 ** Org Roam
 
@@ -665,12 +729,19 @@ TODO: Create table with commands
 | org-roam-dailies-goto-tomorrow     | View tomorrow     | SPC r v m  |
 
 #+BEGIN_SRC emacs-lisp
+
+;;(defvar roamDir "test" "The default location of org roam files.")
+;;(when on-linux)
+	;;(defvar roamDir "~/Documents/org/RoamNotes")
+;;(when on-windows)
+	(defvar roamDir "c:\\Users\\Jacob\\Documents\\org\\RoamNotes" "The default location of org roam files.")
+
 (use-package org-roam
   :ensure t
   :init
   (setq org-roam-v2-ack t)
   :custom
-  (org-roam-directory "~/Documents/org/RoamNotes")
+  (org-roam-directory roamDir)
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain
@@ -708,45 +779,48 @@ TODO: Create table with commands
 								("To do")))))
 #+END_SRC
 
+#+RESULTS:
+| d | Journal | entry | * %? | :if-new | (file+head+olp %<%Y-%m-%d>.org #+title: %<%Y-%m-%d> |
+
 ** Search org-roam
 
 #+BEGIN_SRC emacs-lisp
-'(use-package deadgrep)
-'(global-set-key (kbd "<f5>") #'deadgrep)
-'(use-package consult-ripgrep)
-'(defun org-roam-search-args ()
-'  "Search org-roam directory using consult-ripgrep. With live-preview." 
-'  (let ((consult-ripgrep-args "rg --null --ignore-case --type org --line-buffered --color=never --max-columns=500 --no-heading --line-number"))
-'    (consult-ripgrep org-roam-directory)))
-'
-'(defun headlong ()
-'  "Make the current minibuffer completion exit when there is 1 candidate."
-'  (add-hook 'after-change-functions
-'            (lambda (&rest _)
-'              (let* ((all (completion-all-completions
-'                           (minibuffer-contents)
-'                           minibuffer-completion-table
-'                           minibuffer-completion-predicate
-'                           (max 0 (- (point) (minibuffer-prompt-end)))))
-'                     (last (last all)))
-'                (when last (setcdr last nil))
-'                (when (and all (null (cdr all)))
-'                  (delete-minibuffer-contents)
-'                  (insert (car all))
-'                  (exit-minibuffer))))
-'            nil t))
-'
-'(defun org-roam-search ()
-'  (interactive)
-'  (minibuffer-with-setup-hook #'headlong (funcall #'org-roam-search-args)))
-'
-'(global-set-key (kbd "<f5>") 'org-roam-search)
-'(defun bms/org-roam-rg-search ()
-'  "Search org-roam directory using consult-ripgrep. With live-preview."
-'  (interactive)
-'  (let ((consult-ripgrep-command "rg --null --ignore-case --type org --line-buffered --color=always --max-columns=500 --no-heading --line-number . -e ARG OPTS"))
-'    (consult-ripgrep org-roam-directory))r
-'(global-set-key (kbd "<f5>") 'bms/rg-roam-rg-search)
+;;'(use-package deadgrep)
+;;'(global-set-key (kbd "<f5>") #'deadgrep)
+;;'(use-package consult-ripgrep)
+;;'(defun org-roam-search-args ()
+;;'  "Search org-roam directory using consult-ripgrep. With live-preview." 
+;;'  (let ((consult-ripgrep-args "rg --null --ignore-case --type org --line-buffered --color=never --max-columns=500 --no-heading --line-number"))
+;;'    (consult-ripgrep org-roam-directory)))
+;;'
+;;'(defun headlong ()
+;;'  "Make the current minibuffer completion exit when there is 1 candidate."
+;;'  (add-hook 'after-change-functions
+;;'            (lambda (&rest _)
+;;'              (let* ((all (completion-all-completions
+;;'                           (minibuffer-contents)
+;;'                           minibuffer-completion-table
+;;'                           minibuffer-completion-predicate
+;;'                           (max 0 (- (point) (minibuffer-prompt-end)))))
+;;'                     (last (last all)))
+;;'                (when last (setcdr last nil))
+;;'                (when (and all (null (cdr all)))
+;;'                  (delete-minibuffer-contents)
+;;'                  (insert (car all))
+;;'                  (exit-minibuffer))))
+;;'            nil t))
+;;'
+;;'(defun org-roam-search ()
+;;'  (interactive)
+;;'  (minibuffer-with-setup-hook #'headlong (funcall #'org-roam-search-args)))
+;;'
+;;'(global-set-key (kbd "<f5>") 'org-roam-search)
+;;'(defun bms/org-roam-rg-search ()
+;;'  "Search org-roam directory using consult-ripgrep. With live-preview."
+;;'  (interactive)
+;;'  (let ((consult-ripgrep-command "rg --null --ignore-case --type org --line-buffered --color=always --max-columns=500 --no-heading --line-number . -e ARG OPTS"))
+;;'    (consult-ripgrep org-roam-directory))r
+;;'(global-set-key (kbd "<f5>") 'bms/rg-roam-rg-search)
 #+END_SRC
 
 #+RESULTS:
@@ -757,7 +831,7 @@ TODO: Create table with commands
 ** Consult
 
 #+BEGIN_SRC emacs-lisp
-'(use-package consult)
+;;(use-package consult)
 #+END_SRC
 
 #+RESULTS:
@@ -811,20 +885,22 @@ TODO: Create table with commands
 ** Magit
 Complete text-based user interface to Git.
 #+begin_src emacs-lisp
-    (use-package magit
-      :commands magit-status)
+(use-package magit
+    :commands magit-status)
 #+end_src
+
+#+RESULTS:
 
 ** Projectile
 Projectile is a project interaction library for Emacs.
 #+begin_src emacs-lisp
-    (use-package projectile
-      :config
-      (projectile-mode 1)
-      :init
-      (setq projectile-switch-project-action #'projectile-dired)
-      (setq projectile-project-search-path '(("~/Projects/Github" . 1) ("~/Code/Spielerei" . 1) ("~/Code/ITnCare" . 1) ("~/Code/Rockstars")))) ;; . 1 means only search first subdirectory level for projects
-    ;; Use Bookmarks for non git projects
+(use-package projectile
+    :config
+    (projectile-mode 1)
+    :init
+    (setq projectile-switch-project-action #'projectile-dired)
+    (setq projectile-project-search-path '(("~/Projects/Github" . 1) ("~/Code/Spielerei" . 1) ("~/Code/ITnCare" . 1) ("~/Code/Rockstars")))) ;; . 1 means only search first subdirectory level for projects
+;; Use Bookmarks for non git projects
 #+end_src
 
 #+RESULTS:
@@ -835,24 +911,26 @@ Company is a text completion framework for Emacs. The name stands for “complet
 Completion will start automatically after you type a few letters.
 Use M-n and M-p to select, <tab> to complete.
 #+begin_src emacs-lisp
-    (use-package company
-      :defer 2
-      :diminish
-      :bind (:map company-active-map
-                  ("<tab>" . company-complete-selection)) ;; You can delete the :bind region to use return (default)
-      :custom
-      (company-begin-commands '(self-insert-command))
-      (company-idle-delay 0.0)
-      (company-minimum-prefix-length 1)
-      (company-show-numbers t)
-      (company-tooltip-align-annotations 't)
-      (global-company-mode t))
+(use-package company
+    :defer 2
+    :diminish
+    :bind (:map company-active-map
+                ("<tab>" . company-complete-selection)) ;; You can delete the :bind region to use return (default)
+    :custom
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay 0.0)
+    (company-minimum-prefix-length 1)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
 
-    (use-package company-box
-      :after compan
-      :diminish
-      :hook (company-mode . company-box-mode))
+(use-package company-box
+    :after compan
+    :diminish
+    :hook (company-mode . company-box-mode))
 #+end_src
+
+#+RESULTS:
 
 ** Ivy (counsel)
 Ivy, a generic completion mechanism for Emacs.
@@ -893,50 +971,55 @@ Ivy-rich allows us to add descriptions alongside the commands in M-x.
   (counsel-mode 1))
 #+END_SRC
 
+#+RESULTS:
+: counsel-minibuffer-history
+
 #+begin_src emacs-lisp
-'    (use-package counsel
-'      :after ivy
-'      :diminish
-'      :config (counsel-mode))
-'
-'    (use-package ivy
-'      :bind
-'      ;; ivy-resume resumes the last Ivy-based completion.
-'      (("C-c C-r" . ivy-resume)
-'       ("C-x B" . ivy-switch-buffer-other-window))
-'      :diminish
-'      :custom
-'      (setq ivy-use-virtual-buffers t)
-'      (setq ivy-count-format "(%d/%d) ")
-'      (setq enable-recursive-minibuffers t)
-'      :config
-'      (ivy-mode))
-'
-'    (use-package nerd-icons-ivy-rich
-'      :init
-'      (nerd-icons-ivy-rich-mode 1)
-'      (ivy-rich-mode 1))
-'
-'    (use-package ivy-rich
-'      :after ivy
-'      :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-'      :custom
-'      (ivy-virtual-abbreviate 'full
-'                              ivy-rich-switch-buffer-align-virtual-buffer t
-'                              ivy-rich-path-style 'abbrev)
-'      :config
-'      (ivy-set-display-transformer 'ivy-switch-buffer
-'                                   'ivy-rich-switch-buffer-transformer))
-'    (use-package counsel-projectile
-'      :config (counsel-projectile-mode))
+;;    (use-package counsel
+;;      :after ivy
+;;      :diminish
+;;      :config (counsel-mode))
+;;
+;;    (use-package ivy
+;;      :bind
+;;      ;; ivy-resume resumes the last Ivy-based completion.
+;;      (("C-c C-r" . ivy-resume)
+;;       ("C-x B" . ivy-switch-buffer-other-window))
+;;      :diminish
+;;      :custom
+;;      (setq ivy-use-virtual-buffers t)
+;;      (setq ivy-count-format "(%d/%d) ")
+;;      (setq enable-recursive-minibuffers t)
+;;      :config
+;;      (ivy-mode))
+;;
+;;    (use-package nerd-icons-ivy-rich
+;;      :init
+;;      (nerd-icons-ivy-rich-mode 1)
+;;      (ivy-rich-mode 1))
+;;
+;;    (use-package ivy-rich
+;;      :after ivy
+;;      :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+;;      :custom
+;;      (ivy-virtual-abbreviate 'full
+;;                              ivy-rich-switch-buffer-align-virtual-buffer t
+;;                              ivy-rich-path-style 'abbrev)
+;;      :config
+;;      (ivy-set-display-transformer 'ivy-switch-buffer
+;;                                   'ivy-rich-switch-buffer-transformer))
+;;    (use-package counsel-projectile
+;;      :config (counsel-projectile-mode))
 #+end_src
 
 ** DIMINISH
 This package implements hiding or abbreviation of the modeline displays (lighters) of minor-modes.
 With this package installed, you can add ‘:diminish’ to any use-package block to hide that particular mode in the modeline.
 #+begin_src emacs-lisp
-    (use-package diminish)
+(use-package diminish)
 #+end_src
+
+#+RESULTS:
 
 ** WHICH-KEY
 Which-key is a helper utility for keychords (which key to press)
@@ -960,12 +1043,8 @@ Which-key is a helper utility for keychords (which key to press)
             which-key-separator " → " ))
 #+end_src
 
-** Nix mode
-
-#+begin_src emacs-lisp
-(use-package nix-mode
-    :mode "\\.nix\\'")
-#+end_src
+#+RESULTS:
+: t
 
 ** PlantUML
 
@@ -988,21 +1067,27 @@ Which-key is a helper utility for keychords (which key to press)
     (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
 #+end_src
 
+#+RESULTS:
+
 ** Gherkin
 
 #+begin_src emacs-lisp
-(require 'feature-mode)
-(add-to-list 'auto-mode-alist '("\.feature$" . feature-mode))
+;;(require 'feature-mode)
+;;(add-to-list 'auto-mode-alist '("\.feature$" . feature-mode))
 #+end_src
 
 ** YASnippet
 
 #+BEGIN_SRC emacs-lisp
-(use-package yasnippet
-  :config
-  (setq yas-snippet-dirs '("~/Documents/org/yasnippets"))
-  (yas-global-mode 1))
+;; TODO: fix path, get templates
+;;(use-package yasnippet
+;;  :config
+;;  (setq yas-snippet-dirs '("~/Documents/org/yasnippets"))
+;;  (yas-global-mode 1))
 #+END_SRC
+
+#+RESULTS:
+: t
 
 ** Spell checking
 
@@ -1036,6 +1121,9 @@ Which-key is a helper utility for keychords (which key to press)
 
 #+END_SRC
 
+#+RESULTS:
+: flyspell-check-next-highlighted-word
+
 ** Runtime Performance
 Dial the GC threshold back down so that garbage collection happens more frequently but in less time. We also increase Read Process Output Max so emacs can read more data.
 #+begin_src emacs-lisp
@@ -1045,6 +1133,9 @@ Dial the GC threshold back down so that garbage collection happens more frequent
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
 #+end_src
 
+#+RESULTS:
+: 1048576
+
 ** Commenting lines
 
 #+BEGIN_SRC emacs-lisp
@@ -1052,19 +1143,22 @@ Dial the GC threshold back down so that garbage collection happens more frequent
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+END_SRC
 
+#+RESULTS:
+: evilnc-comment-or-uncomment-lines
+
 ** Webjump
 
 #+begin_src emacs-lisp
-(use-package webjump
-  :defer
-  :ensure nil
-  :bind ("C-x /" . webjump)
-  :config
-  (setq webjump-sites '(
-						("Google" . [simple-query "google.com" "google.com/search?q=" ""])
-						("GitHub" . [simple-query "github.com" "https://github.com/search?q=owner:jacobduijzer " "&type=repository"])
-						("YouTube" . [simple-query "youtube.com/feed/subscriptions" "youtube.com/results?search_query=" ""])
-)))
+;;(use-package webjump
+;;  :defer
+;;  :ensure nil
+;;  :bind ("C-x /" . webjump)
+;;  :config
+;;  (setq webjump-sites '(
+;;						("Google" . [simple-query "google.com" "google.com/search?q=" ""])
+;;						("GitHub" . [simple-query "github.com" "https://github.com/search?q=owner:jacobduijzer " "&type=repository"])
+;;						("YouTube" . [simple-query "youtube.com/feed/subscriptions" "youtube.com/results?search_query=" ""])
+;;)))
 #+end_src
 
 #+RESULTS:
@@ -1078,8 +1172,8 @@ Eat(Emulate A Terminal) is a terminal emulator within Emacs.
 Its more portable and less overhead for users over like vterm or eshell.
 We setup eat with eshell if you want to use bash, zsh etc.. Check out their git [[https://codeberg.org/akib/emacs-eat][repository]] how to do it.
 #+begin_src emacs-lisp
-(use-package eat
-  :hook('eshell-load-hook #'eat-eshell-mode))
+;;(use-package eat
+;;  :hook('eshell-load-hook #'eat-eshell-mode))
 #+end_src
 
 
