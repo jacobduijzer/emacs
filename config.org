@@ -60,19 +60,21 @@ To update/upgrade packages, use the package-upgrade-all command.
 ** Fonts
 
 #+BEGIN_SRC emacs-lisp
+	(with-system-type my-font-size
+	  (gnu/linux 110) 
+	  (darwin 150)
+	  (windows-nt 100)
+	  (t 100))
 
-		(with-system-type my-font
-		  (gnu/linux "DejaVu Sans Mono-12") ;; not the correct font yet, need to change this
-		  (darwin "Menlo-12") ;; not the correct font yet, need to change this
-		  (windows-nt "JetBrainsMono NF")
-		  (t "Courier-12"))
+	(with-system-type my-font
+	  (gnu/linux "DejaVu Sans Mono-12") ;; not the correct font yet, need to change this
+	  (darwin "JetBrainsMono NF") ;; not the correct font yet, need to change this
+	  (windows-nt "JetBrainsMono NF")
+	  (t "Courier-12"))
 
-		(set-face-attribute 'default nil
-							:font my-font
-							:height 110
-							:weight 'medium)
-		(setq-default line-spacing 2)
+	(set-face-attribute 'default nil
+						:font my-font
+						:height my-font-size
+						:weight 'medium)
+	(setq-default line-spacing 2)
 #+END_SRC
-
-#+RESULTS:
-: 2

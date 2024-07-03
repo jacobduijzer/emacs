@@ -507,53 +507,53 @@ TODO: Create table with commands
 
 #+BEGIN_SRC emacs-lisp
 
-;;(defvar roamDir "test" "The default location of org roam files.")
-;;(when on-linux)
-	;;(defvar roamDir "~/Documents/org/RoamNotes")
-;;(when on-windows)
-	(defvar roamDir "c:\\Users\\Jacob\\Documents\\org\\RoamNotes" "The default location of org roam files.")
+	(with-system-type roamDir
+		(gnu/linux "~/Documents/org/RoamNotes") ;; not the correct font yet, need to change this
+		  (darwin "~/Documents/org/RoamNotes") ;; not the correct font yet, need to change this
+		  (windows-nt "c:\\Users\\Jacob\\Documents\\org\\RoamNotes")
+		  (t "~/org"))
 
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory roamDir)
-  (org-roam-completion-everywhere t)
-  (org-roam-capture-templates
-   '(("d" "default" plain
-      "%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
-      :unnarrowed t)
-     ("n" "notes" plain
-      "\n%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
-      :unnarrowed t)))
-  :config
-  (org-roam-db-autosync-mode))
+	(use-package org-roam
+	  :ensure t
+	  :init
+	  (setq org-roam-v2-ack t)
+	  :custom
+	  (org-roam-directory roamDir)
+	  (org-roam-completion-everywhere t)
+	  (org-roam-capture-templates
+	   '(("d" "default" plain
+		  "%?"
+		  :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+		  :unnarrowed t)
+		 ("n" "notes" plain
+		  "\n%?"
+		  :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+		  :unnarrowed t)))
+	  :config
+	  (org-roam-db-autosync-mode))
 
-(setq org-roam-dailies-capture-templates
-	  '(
-		("d" "Journal" entry "* %?"
-		 :if-new (file+head+olp "%<%Y-%m-%d>.org"
-								"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
-								("Journal")))
-		("m" "Meeting" entry "* MEETING %? %U\nWith: \n"
-		 :if-new (file+head+olp "%<%Y-%m-%d>.org"
-								"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
-								("Meeting")))
-		("n" "Note" entry "* NOTE %? %U\n"
-		 :if-new (file+head+olp "%<%Y-%m-%d>.org"
-								"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
-								("Note")))
-		("s" "Standup" entry "* STANDUP %U\n  Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n"
-		 :if-new (file+head+olp "%<%Y-%m-%d>.org"
-								"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
-								("Standup")))
-		("t" "To do" entry "* TODO %?"
-		 :if-new (file+head+olp "%<%Y-%m-%d>.org"
-								"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
-								("To do")))))
+	(setq org-roam-dailies-capture-templates
+		  '(
+			("d" "Journal" entry "* %?"
+			 :if-new (file+head+olp "%<%Y-%m-%d>.org"
+									"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+									("Journal")))
+			("m" "Meeting" entry "* MEETING %? %U\nWith: \n"
+			 :if-new (file+head+olp "%<%Y-%m-%d>.org"
+									"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
+									("Meeting")))
+			("n" "Note" entry "* NOTE %? %U\n"
+			 :if-new (file+head+olp "%<%Y-%m-%d>.org"
+									"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+									("Note")))
+			("s" "Standup" entry "* STANDUP %U\n  Team: %?\n\n*** Yesterday\n\n*** Today\n\n*** Impediments\n\n"
+			 :if-new (file+head+olp "%<%Y-%m-%d>.org"
+									"#+title: %<%Y-%m-%d>\n#+filetags: %<%Y:%B:>\n"
+									("Standup")))
+			("t" "To do" entry "* TODO %?"
+			 :if-new (file+head+olp "%<%Y-%m-%d>.org"
+									"#+title: %<%Y-%m-%d>\n#+filetags: %<:%Y:%B:>\n"
+									("To do")))))
 #+END_SRC
 
 #+RESULTS:
