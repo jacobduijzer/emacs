@@ -6,25 +6,14 @@
 
 * Table Of Contents :TOC_4:
 - [[#global-emacs-configuration][Global Emacs Configuration]]
-  - [[#startup-performance][Startup Performance]]
-  - [[#use-package][Use Package]]
-  - [[#load-evil-mode][Load Evil Mode]]
+  - [[#evil-mode][Evil mode]]
   - [[#general-keybindings][General Keybindings]]
-  - [[#sane-defaults][Sane defaults]]
   - [[#set-theme][Set Theme]]
-  - [[#setting-fonts][Setting fonts]]
   - [[#nerd-icons][Nerd Icons]]
   - [[#zooming-inout][Zooming In/Out]]
   - [[#modeline][Modeline]]
   - [[#dashboard][Dashboard]]
   - [[#dashboard-in-emacsclient][Dashboard in Emacsclient]]
-- [[#custom-functions][Custom functions]]
-  - [[#determine-operating-system][Determine Operating System]]
-  - [[#transparancy][Transparancy]]
-  - [[#resizing-and-relocation-emacs][Resizing and relocation emacs]]
-    - [[#auto-resize-emacs][Auto resize emacs]]
-    - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
-    - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
 - [[#org][Org]]
   - [[#org-mode][Org mode]]
   - [[#org-modern][Org Modern]]
@@ -61,41 +50,12 @@
 
 * Global Emacs Configuration
 
-** Startup Performance
-Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
-#+begin_src emacs-lisp
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-#+end_src
-
-** Use Package
-I used the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc..) are useful if you want to
-install packages from github, if you want a specific, not very popular package that is not available on elpa or melpa.
-or you want UI (elpaca) and other things.
-
-If you are interested in these other package managers, check out their github repositories or search for more package managers.
-In my experience Package.el is not slow and gets the job done.
-
-To update/upgrade packages, use the package-upgrade-all command.
-With Emacs 29 use-package is now build in.
-#+begin_src emacs-lisp
-(require 'package)
-(require 'use-package) ;; requires package.el and use-package so we can use it
-(setq use-package-always-ensure t) ;; always ensures that a package is installed
-(setq package-archives '(("melpa" . "https://melpa.org/packages/") ;; Sets default package repositories
-                            ("org" . "https://orgmode.org/elpa/")
-                            ("elpa" . "https://elpa.gnu.org/packages/")
-                            ("nongnu" . "https://elpa.nongnu.org/nongnu/"))) ;; For Eat Terminal
-#+end_src
-
-#+RESULTS:
-: ((melpa . https://melpa.org/packages/) (org . https://orgmode.org/elpa/) (elpa . https://elpa.gnu.org/packages/) (nongnu . https://elpa.nongnu.org/nongnu/))
-
-** Load Evil Mode
+** Evil mode
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
 Note: To paste without copy (yank) selected text use P (shift P evil-paste-before), because default is evil-paste-after.
 You can toggle evil mode with ctrl z (emacs-mode)
-#+begin_src emacs-lisp
+
+#+BEGIN_SRC emacs-lisp
 (use-package evil
     :init ;; tweak evil's configuration before loading it
     (setq evil-want-keybinding nil) ;; Disable evil bindings in other modes (It's not consistent and not good)
@@ -115,9 +75,7 @@ You can toggle evil mode with ctrl z (emacs-mode)
     (define-key evil-motion-state-map (kbd "SPC") nil)
     (define-key evil-motion-state-map (kbd "RET") nil)
     (define-key evil-motion-state-map (kbd "TAB") nil))
-#+end_src
-
-#+RESULTS:
+#+END_SRC
 
 ** General Keybindings
 General is a keybinding framework to set keybindings easily.
@@ -210,44 +168,6 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 
 #+END_SRC
 
-#+RESULTS:
-: t
-
-
-** Sane defaults
-#+begin_src emacs-lisp
-(set-language-environment "UTF-8")
-(delete-selection-mode 1)    ;; You can select text and delete it by typing.
-(electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
-
-(global-auto-revert-mode t)  ;; Automatically reload file and show changes if the file has changed
-(global-display-line-numbers-mode 1) ;; Display line numbers
-(global-visual-line-mode t)  ;; Enable truncated lines
-(menu-bar-mode -1)           ;; Disable the menu bar
-(scroll-bar-mode -1)         ;; Disable the scroll bar
-(tool-bar-mode -1)           ;; Disable the tool bar
-
-(setq mouse-wheel-progressive-speed nil) ;; Disable progressive speed when scrolling
-(setq scroll-conservatively 10) ;; Smooth scrolling when going down with scroll margin
-(setq scroll-margin 8)
-
-(setq make-backup-files nil) ; Stop creating ~ backup files
-(global-set-key [escape] 'keyboard-escape-quit) ;; Makes Escape quit prompts (Minibuffer Escape)
-(blink-cursor-mode 0) ;; Don't blink cursor
-(add-hook 'prog-mode-hook (lambda () (hs-minor-mode t))) ;; Enable folding hide/show globally
-
-(setq org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
-(setq-default tab-width 4)
-
-(setopt use-short-answers t) ;; Use y/n instead of yes/no
-(setq visible-bell 'visual)
-(setq ring-bell-function 'ignore)
-(global-set-key (kbd "<S-Insert>") #'clipboard-yank) ;; shift+insert paste from clipboard
-#+end_src
-
-#+RESULTS:
-: clipboard-yank
-
 ** Set Theme
 
 #+begin_src emacs-lisp
@@ -268,38 +188,6 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
   (load-theme 'modus-vivendi :no-confirm))
 #+end_src
 
-#+RESULTS:
-: modus-themes-select
-
-** Setting fonts
-
-#+BEGIN_SRC emacs-lisp
-(use-package mixed-pitch
-  :hook
-  (text-mode . mixed-pitch-mode))
-#+END_SRC
-
-#+RESULTS:
-| mixed-pitch-mode | text-mode-hook-identify |
-
-#+begin_src emacs-lisp
-
-(with-system-type my-font
-  (gnu/linux "DejaVu Sans Mono-12") ;; not the correct font yet, need to change this
-  (darwin "Menlo-12") ;; not the correct font yet, need to change this
-  (windows-nt "JetBrainsMono NF")
-  (t "Courier-12"))
-
-(set-face-attribute 'default nil
-					:font my-font
-					:height 100
-					:weight 'medium)
-(setq-default line-spacing 2)
-#+end_src
-
-#+RESULTS:
-: 2
-
 ** Nerd Icons
 For icons and more helpful ui.
 This is an icon set that can be used with dired, ibuffer and other Emacs programs.
@@ -309,15 +197,19 @@ Don't forget to use nerd-icons-install-fonts.
 We use Nerd icons because it has more, better icons and all-the-icons only supports GUI.
 While nerd-icons supports both GUI and TUI.
 
+#+BEGIN_SRC emacs-lisp
+	(require 'all-the-icons)
+#+END_SRC
+
 #+begin_src emacs-lisp
-(use-package nerd-icons
-    :if (display-graphic-p))
+	(use-package nerd-icons
+		:if (display-graphic-p))
 
-(use-package nerd-icons-dired
-    :hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
+	(use-package nerd-icons-dired
+		:hook (dired-mode . (lambda () (nerd-icons-dired-mode t))))
 
-(use-package nerd-icons-ibuffer
-    :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+	(use-package nerd-icons-ibuffer
+		:hook (ibuffer-mode . nerd-icons-ibuffer-mode))
 #+end_src
 
 #+RESULTS:
@@ -377,37 +269,6 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 #+begin_src emacs-lisp
 (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+end_src
-
-#+RESULTS:
-| lambda | nil | (get-buffer *dashboard*) |
-
-* Custom functions
-
-** Determine Operating System
-
-#+BEGIN_SRC emacs-lisp
-;;(defmacro with-system-type (var &rest cases)
-;;  "Set VAR based on `system-type` using CASES."
-;;  (declare (indent 1))
-;;  `(setq ,var
-;;         (cond
-;;          ,@(mapcar (lambda (case)
-;;                      `((eq system-type ',(car case)) ,(cadr case)))
-;;                    cases)
-;;          (t ,(cadr (assoc t cases))))))
-
-;; Example usage:
-;;(with-system-type my-font
-;;  (gnu/linux "DejaVu Sans Mono-12")
-;;  (darwin "Menlo-12")
-;;  (windows-nt "Consolas-12")
-;;  (t "Courier-12"))
-;;
-;;(message "The selected font is: %s" my-font)
-#+END_SRC
-
-#+RESULTS:
-: with-system-type
 
 * Org
 
@@ -591,29 +452,32 @@ Shows D-Bus reminders for org files. To blacklist items, add a "PERSONAL" tag.
 
 ** Org Bullets v2
 
-
 #+BEGIN_SRC emacs-lisp
-;;(require 'org-bullets)
-;;(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-	;;(use-package org-bullets
-	;;  :ensure t
-	;;  :config
-	;;  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+	;;(require 'org-bullets)
+	;;(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+		;;(use-package org-bullets
+		;;  :ensure t
+		;;  :config
+		;;  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-	;;	(use-package org-superstar
-	;;	  :ensure t
-	;;	  :config
-	;;	  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
-	;;(require 'org-superstar)
-	;;(add-hook 'org-mode-hook
-    ;;      (lambda ()
-    ;;        (org-superstar-mode 1)))
+	;;		(use-package org-superstar
+	;;		  :ensure t
+	;;		  :config
+	;;		  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+	;;	(require 'org-superstar)
+	;;	(add-hook 'org-mode-hook
+	;;          (lambda ()
+	;;            (org-superstar-mode 1)))
+;;(require 'org-superstar)
+;;(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 #+END_SRC
 
 #+RESULTS:
-| (lambda nil (org-superstar-mode 1)) | (lambda nil (org-bullets-mode 1)) | org-appear-mode | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | toc-org-enable | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+| (lambda nil (org-superstar-mode 1)) | toc-org-enable | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
 ** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can be enabled.
@@ -1095,3 +959,26 @@ We setup eat with eshell if you want to use bash, zsh etc.. Check out their git 
 #+end_src
 
 
+#+BEGIN_SRC emacs-lisp
+	;;	(global-set-key [scroll-lock] 'ignore)
+	;;	(global-set-key (kbd "<key-20>") 'ignore)
+	;;    (global-set-key (kbd "<Scroll_Lock>") 'ignore)
+	;;		(global-set-key (kbd "<Scroll_Lock>") 'ignore)
+	;;(global-set-key (kbd "<Scroll_Lock>") 'ignore)
+
+
+	;;(define-key global-map (kbd "<ScrollLock>") nil)
+	;;(global-set-key (kbd "<scroll>") 'ignore)
+	;;(global-set-key (kbd "<Scroll_Lock>") 'ignore)
+	;;(global-set-key (kbd "<Scroll>") 'ignore)
+	;;(global-set-key (kbd "<scroll-lock>") 'ignore)
+	;;(global-set-key (kbd "<ScrollLock>") 'ignore)
+	;;(global-set-key (kbd "Scroll_Lock") 'ignore)
+	;;(global-set-key (kbd "ScrollLock") 'ignore)
+	;;(global-set-key (kbd "scroll-lock") 'ignore)
+	;;(global-set-key (kbd "scroll") 'ignore)
+
+#+END_SRC
+
+#+RESULTS:
+: ignore
