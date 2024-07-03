@@ -51,6 +51,7 @@ projectile-bookmarks.eld
 
 # auto-generated .el
 custom.el
+config.el
 macros.el
 readme.el
 
