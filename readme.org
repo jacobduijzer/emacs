@@ -26,16 +26,16 @@
     - [[#set-emacs-position-on-screen][Set emacs' position on screen]]
     - [[#resize-and-screen-location-keybindings][Resize and screen-location keybindings]]
 - [[#org][Org]]
-  - [[#org-mode][Org-mode]]
-  - [[#org-appear][Org Appear]]
+  - [[#org-mode][Org mode]]
   - [[#org-modern][Org Modern]]
   - [[#default-file-actions][Default file actions]]
+    - [[#][]]
   - [[#org-definitions][Org definitions]]
   - [[#auto-update-images][Auto update images]]
   - [[#agenda][Agenda]]
   - [[#alerts--notifications][Alerts / Notifications]]
   - [[#enabling-table-of-contents][Enabling Table of Contents]]
-  - [[#enabling-org-bullets][Enabling Org Bullets]]
+  - [[#org-bullets-v2][Org Bullets v2]]
   - [[#source-code-block-tag-expansion][Source Code Block Tag Expansion]]
   - [[#org-roam][Org Roam]]
   - [[#search-org-roam][Search org-roam]]
@@ -67,9 +67,6 @@ Make startup faster by reducing the frequency of garbage collection. This will b
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 #+end_src
-
-#+RESULTS:
-: 50000000
 
 ** Use Package
 I used the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc..) are useful if you want to
@@ -152,7 +149,8 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 
   (start/leader-keys
     "b" '(:ignore t :wk "Buffer Bookmarks")
-    "b b" '(ivy-switch-buffer :wk "Switch buffer")
+    "b b" '(counsel-switch-buffer :wk "Switch buffer")
+    ;;"b b" '(ivy-switch-buffer :wk "Switch buffer")
     "b k" '(kill-this-buffer :wk "Kill this buffer")
     "b i" '(ibuffer :wk "Ibuffer")
     "b n" '(next-buffer :wk "Next buffer")
@@ -205,7 +203,6 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 	"w mc" '((lambda () (interactive)(my/frame-move 0.5 0.5)) :wk "Move to the center")
   	"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
   	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right")
-	"w t" '((lambda () (interactive)(toggle-transparency)) :wk "Toggle transparency")
 	"w s" '(:ignore t :wk "Window Split")
 	"w sb" '((lambda () (interactive)(split-window-below)) :wk "Split window below")
 	"w sr" '((lambda () (interactive)(split-window-right)) :wk "Split window right")
@@ -222,7 +219,6 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 (set-language-environment "UTF-8")
 (delete-selection-mode 1)    ;; You can select text and delete it by typing.
 (electric-indent-mode -1)    ;; Turn off the weird indenting that Emacs does by default.
-(electric-pair-mode 1)       ;; Turns on automatic parens pairing
 
 (global-auto-revert-mode t)  ;; Automatically reload file and show changes if the file has changed
 (global-display-line-numbers-mode 1) ;; Display line numbers
@@ -246,10 +242,11 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 (setopt use-short-answers t) ;; Use y/n instead of yes/no
 (setq visible-bell 'visual)
 (setq ring-bell-function 'ignore)
+(global-set-key (kbd "<S-Insert>") #'clipboard-yank) ;; shift+insert paste from clipboard
 #+end_src
 
 #+RESULTS:
-: ignore
+: clipboard-yank
 
 ** Set Theme
 
@@ -286,14 +283,17 @@ To search and replace start use query-replace-regexp one by one (SPACE to replac
 | mixed-pitch-mode | text-mode-hook-identify |
 
 #+begin_src emacs-lisp
+
+(with-system-type my-font
+  (gnu/linux "DejaVu Sans Mono-12") ;; not the correct font yet, need to change this
+  (darwin "Menlo-12") ;; not the correct font yet, need to change this
+  (windows-nt "JetBrainsMono NF")
+  (t "Courier-12"))
+
 (set-face-attribute 'default nil
-                    :font "JetBrainsMono NF" ;; Set your favorite type of font or download JetBrains Mono
-                    :height 120
-                    :weight 'medium)
-;; This sets the default font on all graphical frames created after restarting Emacs.
-;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-;; are not right unless I also add this method of setting the default font.
-;; (add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
+					:font my-font
+					:height 100
+					:weight 'medium)
 (setq-default line-spacing 2)
 #+end_src
 
@@ -308,6 +308,7 @@ Don't forget to use nerd-icons-install-fonts.
 
 We use Nerd icons because it has more, better icons and all-the-icons only supports GUI.
 While nerd-icons supports both GUI and TUI.
+
 #+begin_src emacs-lisp
 (use-package nerd-icons
     :if (display-graphic-p))
@@ -337,25 +338,11 @@ You can use the bindings CTRL plus =/- for zooming in/out.  You can also use CTR
 
 ** Modeline
 Replace the default modeline with a pretier more useful.
-#+begin_src emacs-lisp
-;;    (use-package doom-modeline
-;;      :init (doom-modeline-mode 1)
-;;      :config
-;;      (setq doom-modeline-height 25      ;; sets modeline height
-;;            doom-modeline-bar-width 5    ;; sets right bar width
-;;            doom-modeline-persp-name t   ;; adds perspective name to modeline
-;;            doom-modeline-persp-icon t)) ;; adds folder icon next to persp name
-#+end_src
-
-Testing Telephone Line (again).
 
 #+BEGIN_SRC emacs-lisp
 (use-package telephone-line)
 (telephone-line-mode 1)
 #+END_SRC
-
-#+RESULTS:
-: t
 
 ** Dashboard 
 
@@ -399,38 +386,28 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 ** Determine Operating System
 
 #+BEGIN_SRC emacs-lisp
-(defconst on-linux (string-equal system-type "gnu/linux"))
-(defconst on-windows (string-equal system-type "windows-nt"))
-(defconst on-mac (string-equal system-type "darwin"))
+;;(defmacro with-system-type (var &rest cases)
+;;  "Set VAR based on `system-type` using CASES."
+;;  (declare (indent 1))
+;;  `(setq ,var
+;;         (cond
+;;          ,@(mapcar (lambda (case)
+;;                      `((eq system-type ',(car case)) ,(cadr case)))
+;;                    cases)
+;;          (t ,(cadr (assoc t cases))))))
 
-;;(describe-variable on-windows)
+;; Example usage:
+;;(with-system-type my-font
+;;  (gnu/linux "DejaVu Sans Mono-12")
+;;  (darwin "Menlo-12")
+;;  (windows-nt "Consolas-12")
+;;  (t "Courier-12"))
+;;
+;;(message "The selected font is: %s" my-font)
 #+END_SRC
 
 #+RESULTS:
-: on-mac
-
-** Transparancy
-
-#+begin_src emacs-lisp
-;;(set-frame-parameter nil 'alpha-background 100)
-;;(add-to-list 'default-frame-alist '(alpha-background 100))
-
- (defun toggle-transparency ()
-   (interactive)
-   (let ((alpha (frame-parameter nil 'alpha)))
-     (set-frame-parameter
-      nil 'alpha
-      (if (eql (cond ((numberp alpha) alpha)
-                     ((numberp (cdr alpha)) (cdr alpha))
-                     ;; Also handle undocumented (<active> <inactive>) form.
-                     ((numberp (cadr alpha)) (cadr alpha)))
-               100)
-          '(50 . 50) '(100 . 100)))))
- (global-set-key (kbd "C-c t") 'toggle-transparency)
-#+end_src
-
-#+RESULTS:
-: toggle-transparency
+: with-system-type
 
 ** Resizing and relocation emacs
 
@@ -492,7 +469,7 @@ If FRAME is omitted or nil, use currently selected frame."
 *** Resize and screen-location keybindings
 
 | COMMAND                | DESCRIPTION                     | KEYBINDING |
-|------------------------+---------------------------------+------------|
+| -----------------------+---------------------------------+----------- |
 | y/frame-resize         | /resize emacs do default/         | SPC s n    |
 | my/frame-move 0.5 0.5  | /move frame to center/            | SPC s cc   |
 | my/frame-move 0.5 0.5  | /move frame to center and resize/ | SPC s cr   |
@@ -516,71 +493,75 @@ If FRAME is omitted or nil, use currently selected frame."
 
 #+RESULTS:
 
-
 * Org
 
-** Org-mode
+** Org mode
 
 #+BEGIN_SRC emacs-lisp
-(use-package org
-  :ensure t
-  :defer t
-  :config
-  (define-key org-mode-map
-    (kbd "RET") 'org-return-indent)
-  (evil-define-key 'normal org-mode-map
-    (kbd "TAB") 'org-cycle)
-  :custom
-  (org-export-with-drawers nil)
-  (org-expert-with-todo-keywords nil)
-  (org-export-with-broken-links t)
-  (org-export-with-toc nil)
-  (org-export-with-smart-quotes t))
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+	(use-package org
+	  :ensure t
+	  :defer t
+	  :config
+	  (define-key org-mode-map
+		(kbd "RET") 'org-return-indent)
+	  (evil-define-key 'normal org-mode-map
+		(kbd "TAB") 'org-cycle)
+	  :custom
+	  (org-export-with-drawers nil)
+	  (org-expert-with-todo-keywords nil)
+	  (org-export-with-broken-links t)
+	  (org-export-with-toc nil)
+	  (org-export-with-smart-quotes t))
+
+(setq org-ellipsis "▼")
 #+END_SRC
 
 #+RESULTS:
-: t
-
-** Org Appear
-
-#+BEGIN_SRC emacs-lisp
-(use-package org-appear
-  :hook
-  (org-mode . org-appear-mode))
-#+END_SRC
+: ▼
 
 ** Org Modern
 
-Still trying this out, not sure if I like it.
-
 #+BEGIN_SRC emacs-lisp
-(use-package org-modern
-  ;;:hook
-  ;;(org-mode . global-org-modern-mode)
-  :custom
-  (org-modern-keyword nil)
-  (org-modern-checkbox nil)
-  (org-modern-table nil))
+;;(use-package org-modern)
+;;(with-eval-after-load 'org (global-org-modern-mode))
+#+END_SRC
 
-;;(add-hook 'org-mode-hook #'org-modern-mode)
-
-;;(setq
-;;	org-auto-align-tags nil
-;;	org-tags-column 0
-;;	org-catch-invisible-edits 'show-and-error
-;;	org-special-ctrl-a/e t
-;;	org-insert-heading-respect-content t
-;;	org-hide-emphasis-markers t
-;;	org-pretty-entities t)
-
-(with-eval-after-load 'org (global-org-modern-mode))
-
+	#+BEGIN_SRC emacs-lisp
+;;		(use-package org-modern
+;;		  ;;:hook
+;;		  ;;(org-mode . global-org-modern-mode)
+;;		  :custom
+;;		  (org-modern-keyword nil)
+;;		  (org-modern-checkbox nil)
+;;		  (org-modern-table nil))
+;;
+;;		;;(add-hook 'org-mode-hook #'org-modern-mode)
+;;
+;;		(setq
+;;			org-auto-align-tags nil
+;;			org-tags-column 0
+;;			org-catch-invisible-edits 'show-and-error
+;;			org-special-ctrl-a/e t
+;;			org-insert-heading-respect-content t
+;;			org-hide-emphasis-markers t
+;;			org-pretty-entities t)
+;;;;		(setq org-ellipsis "…")
+;;		(setq org-ellipsis "⤵")
+;;
+;;		(set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+;;
+;;		(with-eval-after-load 'org (global-org-modern-mode))
 #+END_SRC
 
 #+RESULTS:
 : t
 
 ** Default file actions
+
 
 #+BEGIN_SRC emacs-lisp
 (setq org-file-apps
@@ -592,33 +573,38 @@ Still trying this out, not sure if I like it.
 #+RESULTS:
 : ((auto-mode . emacs) (\.x?html?\' . /usr/bin/vivaldi-stable %s))
 
+*** 
+
+****** 
 ** Org definitions
 
 #+BEGIN_SRC emacs-lisp
-(setq-default org-startup-indented t
-      org-pretty-entities t
-      org-use-sub-superscripts "{}"
-      org-hide-emphasis-markers t
-      org-startup-with-inline-images t
-      org-image-actual-width '(800))
-
-(add-hook 'org-mode-hook
-  (lambda ()
-    (visual-line-mode 1)))
-(setq org-directory "~/Documents/org"
-  org-default-notes-file (expand-file-name "inbox.org" org-directory)
-  org-ellipsis " ▼ "
-  org-log-done 'time
-  org-journal-dir "~/Documents/org/journal/"
-  org-journal-date-format "%B %d, %Y (%A) "
-  org-journal-file-format "%Y-%m-%d.org"
-  org-hide-emphasis-markers t)
-(setq org-src-preserve-indentation nil
-  org-src-tab-acts-natively t
-  org-edit-src-content-indentation 0
-  org-adapt-indentation t)
-
-(setq org-image-actual-width 800)
+;;(setq-default
+;;	org-startup-folded t
+;;	org-startup-indented t
+;;    org-startup-with-inline-images t
+;;	org-pretty-entities t
+;;	org-use-sub-superscripts "{}"
+;;    org-hide-emphasis-markers t
+;;    org-image-actual-width '(800))
+;;
+;;(add-hook 'org-mode-hook
+;;  (lambda ()
+;;    (visual-line-mode 1)))
+;;(setq org-directory "~/Documents/org"
+;;  org-default-notes-file (expand-file-name "inbox.org" org-directory)
+;;  org-ellipsis " ▼ "
+;;  org-log-done 'time
+;;  org-journal-dir "~/Documents/org/journal/"
+;;  org-journal-date-format "%B %d, %Y (%A) "
+;;  org-journal-file-format "%Y-%m-%d.org"
+;;  org-hide-emphasis-markers t)
+;;(setq org-src-preserve-indentation nil
+;;  org-src-tab-acts-natively t
+;;  org-edit-src-content-indentation 0
+;;  org-adapt-indentation t)
+;;
+;;(setq org-image-actual-width 800)
 #+END_SRC
 
 #+RESULTS:
@@ -687,30 +673,41 @@ Shows D-Bus reminders for org files. To blacklist items, add a "PERSONAL" tag.
     :init (add-hook 'org-mode-hook 'toc-org-enable))
 #+end_src
 
-#+RESULTS:
-| #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | (lambda nil (org-bullets-mode 1)) | org-indent-mode | toc-org-enable | (lambda nil (visual-line-mode 1)) | org-appear-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+** Org Bullets v2
 
-** Enabling Org Bullets
-Org-bullets gives us attractive bullets rather than asterisks.
-#+begin_src emacs-lisp
-;;(add-hook 'org-mode-hook 'org-indent-mode)
-;;(use-package org-bullets)
+
+#+BEGIN_SRC emacs-lisp
+;;(require 'org-bullets)
 ;;(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-#+end_src
+	;;(use-package org-bullets
+	;;  :ensure t
+	;;  :config
+	;;  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+	;;	(use-package org-superstar
+	;;	  :ensure t
+	;;	  :config
+	;;	  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+	;;(require 'org-superstar)
+	;;(add-hook 'org-mode-hook
+    ;;      (lambda ()
+    ;;        (org-superstar-mode 1)))
+#+END_SRC
 
 #+RESULTS:
-| #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | (lambda nil (org-bullets-mode 1)) | org-indent-mode | toc-org-enable | (lambda nil (visual-line-mode 1)) | org-appear-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
+| (lambda nil (org-superstar-mode 1)) | (lambda nil (org-bullets-mode 1)) | org-appear-mode | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | toc-org-enable | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
 ** Source Code Block Tag Expansion
 Org-tempo is not a separate package but a module within org that can be enabled.
 Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
 #+begin_src emacs-lisp
-(with-eval-after-load 'org
-    (require 'org-tempo))
+;;(with-eval-after-load 'org
+;;    (require 'org-tempo))
 #+end_src
 
 #+RESULTS:
-: org-tempo
 
 ** Org Roam
 
@@ -961,10 +958,15 @@ Ivy-rich allows us to add descriptions alongside the commands in M-x.
   :init
   (ivy-rich-mode 1))
 
+;;(ivy-rich-modify-column
+;; 'ivy-switch-buffer
+;; 'ivy-rich-switch-buffer-major-mode
+;; '(:width 20 :face error))
+
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
          :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
+         ("C-r" . 'counsel-minibuffer-histor))
   :custom
   (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
   :config
@@ -972,7 +974,7 @@ Ivy-rich allows us to add descriptions alongside the commands in M-x.
 #+END_SRC
 
 #+RESULTS:
-: counsel-minibuffer-history
+: counsel-minibuffer-histor
 
 #+begin_src emacs-lisp
 ;;    (use-package counsel
@@ -1080,10 +1082,10 @@ Which-key is a helper utility for keychords (which key to press)
 
 #+BEGIN_SRC emacs-lisp
 ;; TODO: fix path, get templates
-;;(use-package yasnippet
-;;  :config
-;;  (setq yas-snippet-dirs '("~/Documents/org/yasnippets"))
-;;  (yas-global-mode 1))
+(use-package yasnippet
+  :config
+  (setq yas-snippet-dirs '("C:/Users/jacob/Documents/org/yasnippets"))
+  (yas-global-mode 1))
 #+END_SRC
 
 #+RESULTS:

@@ -7,6 +7,7 @@
 auto-save-list
 tramp
 .\#*
+*.swp
 
 # Org-mode
 .org-id-locations
@@ -50,6 +51,7 @@ projectile-bookmarks.eld
 
 # auto-generated .el
 custom.el
+macros.el
 readme.el
 
 # misc

@@ -1,0 +1,89 @@
+#+title: Jacob's custom macros
+#+author: Jacob Duijzer
+#+description: Custom macros for emacs
+#+startup: showeverything
+
+* Macros
+** Check Operating System
+
+#+BEGIN_SRC emacs-lisp
+;; check operating system
+(defmacro with-system-type (var &rest cases)
+  "Set VAR based on `system-type` using CASES."
+  (declare (indent 1))
+  `(setq ,var
+         (cond
+          ,@(mapcar (lambda (case)
+                      `((eq system-type ',(car case)) ,(cadr case)))
+                    cases)
+          (t ,(cadr (assoc t cases))))))
+
+;; Example usage:
+;;(with-system-type my-font
+;;  (gnu/linux "DejaVu Sans Mono-12")
+;;  (darwin "Menlo-12")
+;;  (windows-nt "Consolas-12")
+;;  (t "Courier-12"))
+;;
+;;(message "The selected font is: %s" my-font)
+;; custom macros
+#+END_SRC
+
+** Transparency
+
+#+BEGIN_SRC emacs-lisp
+(defun set-transparency (level)
+	"Set the transparency of the frame to LEVEL."
+	(interactive "nTransparency level (0-100): ")
+	(set-frame-parameter (selected-frame) 'alpha `(,level . ,level)))
+
+(defun toggle-transparency (level)
+	"Toggle the transparency of the frame to LEVEL."
+	(interactive)
+	(let ((alpha (frame-parameter nil 'alpha)))
+			(if (and alpha (or (equal alpha `(,level . ,level))
+											(equal alpha level)))
+					(set-frame-parameter nil 'alpha '(100 . 100))
+			(set-frame-parameter nil 'alpha `(,level . ,level)))))
+
+(defun set-transparency-by-percentage (percentage)
+		"Set transparency to PERCENTAGE (10-100%)."
+		(interactive "nSet transparency (10-100%): ")
+		(set-transparency (* percentage 10)))
+
+(defun decrease-transparency ()
+		"Decrease transparency by 5%."
+		(interactive)
+		(let ((current-level (or (car (frame-parameter nil 'alpha)) 100)))
+				(set-transparency (max (- current-level 5) 0))))
+
+(defun increase-transparency ()
+		"Increase transparency by 5%."
+		(interactive)
+		(let ((current-level (or (car (frame-parameter nil 'alpha)) 100)))
+				(set-transparency (min (+ current-level 5) 100))))
+
+(defun reset-transparency ()
+		"Reset transparency to 100%."
+		(interactive)
+		(set-transparency 100))
+
+;; Bind keys for transparency operations
+(define-prefix-command 'transparency-prefix)
+(global-set-key (kbd "C-c t") 'transparency-prefix)
+
+(global-set-key (kbd "C-c t -") 'decrease-transparency)
+(global-set-key (kbd "C-c t +") 'increase-transparency)
+(global-set-key (kbd "C-c t 0") 'reset-transparency)
+
+;; bind numeric keys to percentages (1=10%, 2=20%, etc)
+(dotimes (i 9)
+	(let ((num (+ 1 i)))
+		(global-set-key (kbd (format "C-c t %d" num))
+			`(lambda () (interactive) (set-transparency-by-percentage ,num)))))
+
+;; reset to 100 with 0
+(global-set-key (kbd "C-c t 0")
+	(lambda () (interactive) (set-transparency 100)))
+#+END_SRC
+
