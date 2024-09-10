@@ -26,7 +26,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(all-the-icons-dired octicons yasnippet which-key toc-org telephone-line projectile plantuml-mode ox-hugo ox-gfm org-wild-notifier org-superstar org-roam org-modern org-bullets org-appear olivetti nerd-icons-ibuffer nerd-icons-dired nerd-icons-completion modus-themes mixed-pitch magit ivy-rich general evil-nerd-commenter evil-collection diminish dashboard counsel company-box all-the-icons)))
+   '(wgrep embark-consult embark consult vertico-posframe vertico-quick orderless marginalia vertico all-the-icons-dired octicons yasnippet which-key toc-org telephone-line projectile plantuml-mode ox-hugo ox-gfm org-wild-notifier org-superstar org-roam org-modern org-bullets org-appear olivetti nerd-icons-ibuffer nerd-icons-dired nerd-icons-completion modus-themes mixed-pitch magit ivy-rich general evil-nerd-commenter evil-collection diminish dashboard counsel company-box all-the-icons)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
