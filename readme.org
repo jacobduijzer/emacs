@@ -82,89 +82,92 @@ General is a keybinding framework to set keybindings easily.
 The Leader key is what you will press when you want to access your keybindings (Space + . Find file).
 To search and replace start use query-replace-regexp one by one (SPACE to replace n to skip meta/alt ctrl %) [[https://stackoverflow.com/questions/270930/using-emacs-to-recursively-find-and-replace-in-text-files-not-already-open][Source]]
 #+begin_src emacs-lisp
-(use-package general
-  :config
-  (general-evil-setup)
-  ;; set up 'SPC' as the global leader key
-  (general-create-definer start/leader-keys
-    :states '(normal insert visual emacs)
-    :keymaps 'override
-    :prefix "SPC" ;; set leader
-    :global-prefix "C-SPC") ;; access leader in insert mode
+	(use-package general
+	  :config
+	  (general-evil-setup)
+	  ;; set up 'SPC' as the global leader key
+	  (general-create-definer start/leader-keys
+		:states '(normal insert visual emacs)
+		:keymaps 'override
+		:prefix "SPC" ;; set leader
+		:global-prefix "C-SPC") ;; access leader in insert mode
 
-  (start/leader-keys
-    "." '(find-file :wk "Find file")
-    "TAB" '(comment-line :wk "Comment lines")
-    "p" '(projectile-command-map :wk "Projectile command map"))
+	  (start/leader-keys
+		"." '(find-file :wk "Find file")
+		"TAB" '(comment-line :wk "Comment lines")
+		"p" '(projectile-command-map :wk "Projectile command map"))
 
-  (start/leader-keys
-	"a" '(org-agenda :wk "Show Agenda"))
+	  (start/leader-keys
+		"a" '(org-agenda :wk "Show Agenda"))
 
-  (start/leader-keys
-    "f" '(:ignore t :wk "Find")
-    "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
-    "f r" '(counsel-recentf :wk "Recent files"))
+	  (start/leader-keys
+		"f" '(:ignore t :wk "Find")
+		"f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
+		"f r" '(counsel-recentf :wk "Recent files"))
 
-  (start/leader-keys
-    "b" '(:ignore t :wk "Buffer Bookmarks")
-    "b b" '(counsel-switch-buffer :wk "Switch buffer")
-    ;;"b b" '(ivy-switch-buffer :wk "Switch buffer")
-    "b k" '(kill-this-buffer :wk "Kill this buffer")
-    "b i" '(ibuffer :wk "Ibuffer")
-    "b n" '(next-buffer :wk "Next buffer")
-    "b p" '(previous-buffer :wk "Previous buffer")
-    "b r" '(revert-buffer :wk "Reload buffer")
-    "b R" '(rename-buffer :wk "Rename buffer")
-    "b j" '(bookmark-jump :wk "Bookmark jump"))
+	  (start/leader-keys
+		"b" '(:ignore t :wk "Buffer Bookmarks")
+		"b b" '(counsel-switch-buffer :wk "Switch buffer")
+		;;"b b" '(ivy-switch-buffer :wk "Switch buffer")
+		"b k" '(kill-this-buffer :wk "Kill this buffer")
+		"b i" '(ibuffer :wk "Ibuffer")
+		"b n" '(next-buffer :wk "Next buffer")
+		"b p" '(previous-buffer :wk "Previous buffer")
+		"b r" '(revert-buffer :wk "Reload buffer")
+		"b R" '(rename-buffer :wk "Rename buffer")
+		"b j" '(bookmark-jump :wk "Bookmark jump"))
 
-  (start/leader-keys
-    "d" '(:ignore t :wk "Dired")
-    "d v" '(dired :wk "Open dired")
-    "d j" '(dired-jump :wk "Dired jump to current"))
+	  (start/leader-keys
+		"d" '(:ignore t :wk "Dired")
+		"d v" '(dired :wk "Open dired")
+		"d j" '(dired-jump :wk "Dired jump to current"))
 
-  (start/leader-keys
-    "g" '(:ignore t :wk "Git")
-    "g g" '(magit-status :wk "Magit status"))
+	  (start/leader-keys
+		"g" '(:ignore t :wk "Git")
+		"g g" '(magit-status :wk "Magit status"))
 
-  (start/leader-keys
-    "h" '(:ignore t :wk "Help")
-    "h c" '(company-manual-begin :wk "Company completion at point")
-    "h r" '((lambda () (interactive)
-              (load-file "~/.config/emacs/init.el"))
-            :wk "Reload emacs config"))
+	  (start/leader-keys
+		"h" '(:ignore t :wk "Help")
+		"h c" '(company-manual-begin :wk "Company completion at point")
+		"h r" '((lambda () (interactive)
+				  (load-file "~/.config/emacs/init.el"))
+				:wk "Reload emacs config"))
 
-  (start/leader-keys
-	"r" '(:ignore t :wk "Org-Roam")
-	"r t" '(org-roam-dailies-capture-today :wk "Capture Today")
-	"r f" '(org-roam-node-find :wk "Find node")
-	"r i" '(org-roam-node-find :wk "Insert node")
-	"r j t" '(org-roam-dailies-capture-today :wk "Journal for today")
-	"r j y" '(org-roam-dailies-capture-yesterday :wk "Journal for yesterday")
-	"r j m" '(org-roam-dailies-capture-tomorrow :wk "Journal for tomorrow")
-	"r v t" '(org-roam-dailies-goto-today :wk "View journal for today")
-	"r v y" '(org-roam-dailies-goto-yesterday :wk "View journal for yesterday")
-	"r v m" '(org-roam-dailies-goto-tomorrow :wk "View journal for tomorrow"))
-  
-  (start/leader-keys
-    "s" '(:ignore t :wk "Show")
-    "s e" '(eat :wk "Show Eat"))
+	  (start/leader-keys
+		"r" '(:ignore t :wk "Org-Roam")
+		"r t" '(org-roam-dailies-capture-today :wk "Capture Today")
+		"r f" '(org-roam-node-find :wk "Find node")
+		"r i" '(org-roam-node-find :wk "Insert node")
 
-  (start/leader-keys
-    "t" '(:ignore t :wk "Toggle")
-    "t l" '(display-line-numbers-mode :wk "Toggle line numbers")
-    "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)"))
-  
-  (start/leader-keys
-	"w" '(:ignore t :wk "Screen size & position")
-	"w c" '(my/frame-recenter :wk "Center window")
-	"w m" '(:ignore t :wk "Move screen")
-	"w mc" '((lambda () (interactive)(my/frame-move 0.5 0.5)) :wk "Move to the center")
-  	"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
-  	"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right")
-	"w s" '(:ignore t :wk "Window Split")
-	"w sb" '((lambda () (interactive)(split-window-below)) :wk "Split window below")
-	"w sr" '((lambda () (interactive)(split-window-right)) :wk "Split window right")
-))
+		"r n i" '(org-roam-node-insert :wk "Insert node here")
+
+		"r j t" '(org-roam-dailies-capture-today :wk "Journal for today")
+		"r j y" '(org-roam-dailies-capture-yesterday :wk "Journal for yesterday")
+		"r j m" '(org-roam-dailies-capture-tomorrow :wk "Journal for tomorrow")
+		"r v t" '(org-roam-dailies-goto-today :wk "View journal for today")
+		"r v y" '(org-roam-dailies-goto-yesterday :wk "View journal for yesterday")
+		"r v m" '(org-roam-dailies-goto-tomorrow :wk "View journal for tomorrow"))
+
+	  (start/leader-keys
+		"s" '(:ignore t :wk "Show")
+		"s e" '(eat :wk "Show Eat"))
+
+	  (start/leader-keys
+		"t" '(:ignore t :wk "Toggle")
+		"t l" '(display-line-numbers-mode :wk "Toggle line numbers")
+		"t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)"))
+
+	  (start/leader-keys
+		"w" '(:ignore t :wk "Screen size & position")
+		"w c" '(my/frame-recenter :wk "Center window")
+		"w m" '(:ignore t :wk "Move screen")
+		"w mc" '((lambda () (interactive)(my/frame-move 0.5 0.5)) :wk "Move to the center")
+		"w mr" '((lambda () (interactive)(my/frame-move 0.98 0.5)) :wk "Move to the right")
+		"w ml" '((lambda () (interactive)(my/frame-move 0 0.5)) :wk "Move to the right")
+		"w s" '(:ignore t :wk "Window Split")
+		"w sb" '((lambda () (interactive)(split-window-below)) :wk "Split window below")
+		"w sr" '((lambda () (interactive)(split-window-right)) :wk "Split window right")
+	))
 
 #+END_SRC
 
