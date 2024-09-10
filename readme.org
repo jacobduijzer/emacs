@@ -1,4 +1,3 @@
-
 #+Title: Jacob's Emacs Configuration
 #+Author: Jacob Duijzer
 #+Description: 
