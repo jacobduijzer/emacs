@@ -8,6 +8,7 @@ auto-save-list
 tramp
 .\#*
 *.swp
+.cache
 
 # Org-mode
 .org-id-locations
@@ -62,3 +63,4 @@ recentf
 transient/
 history
 org-persist/
+straight/

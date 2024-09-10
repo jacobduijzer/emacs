@@ -46,6 +46,7 @@
   - [[#commenting-lines][Commenting lines]]
   - [[#webjump][Webjump]]
 - [[#trying-out][Trying out]]
+  - [[#copilot][Copilot]]
   - [[#eat-terminal-emulation][Eat (terminal emulation)]]
   - [[#minibuffer][Minibuffer]]
 
@@ -363,32 +364,33 @@ This setting ensures that emacsclient always opens on *dashboard* rather than *s
 ** Org definitions
 
 #+BEGIN_SRC emacs-lisp
-;;(setq-default
-;;	org-startup-folded t
-;;	org-startup-indented t
-;;    org-startup-with-inline-images t
-;;	org-pretty-entities t
-;;	org-use-sub-superscripts "{}"
-;;    org-hide-emphasis-markers t
-;;    org-image-actual-width '(800))
-;;
-;;(add-hook 'org-mode-hook
-;;  (lambda ()
-;;    (visual-line-mode 1)))
-;;(setq org-directory "~/Documents/org"
-;;  org-default-notes-file (expand-file-name "inbox.org" org-directory)
-;;  org-ellipsis " ▼ "
-;;  org-log-done 'time
-;;  org-journal-dir "~/Documents/org/journal/"
-;;  org-journal-date-format "%B %d, %Y (%A) "
-;;  org-journal-file-format "%Y-%m-%d.org"
-;;  org-hide-emphasis-markers t)
-;;(setq org-src-preserve-indentation nil
-;;  org-src-tab-acts-natively t
-;;  org-edit-src-content-indentation 0
-;;  org-adapt-indentation t)
-;;
-;;(setq org-image-actual-width 800)
+(setq org-src-preserve-indentation t)
+	;;(setq-default
+	;;	org-startup-folded t
+	;;	org-startup-indented t
+	;;    org-startup-with-inline-images t
+	;;	org-pretty-entities t
+	;;	org-use-sub-superscripts "{}"
+	;;    org-hide-emphasis-markers t
+	;;    org-image-actual-width '(800))
+	;;
+	;;(add-hook 'org-mode-hook
+	;;  (lambda ()
+	;;    (visual-line-mode 1)))
+	;;(setq org-directory "~/Documents/org"
+	;;  org-default-notes-file (expand-file-name "inbox.org" org-directory)
+	;;  org-ellipsis " ▼ "
+	;;  org-log-done 'time
+	;;  org-journal-dir "~/Documents/org/journal/"
+	;;  org-journal-date-format "%B %d, %Y (%A) "
+	;;  org-journal-file-format "%Y-%m-%d.org"
+	;;  org-hide-emphasis-markers t)
+	;;(setq org-src-preserve-indentation nil
+	;;  org-src-tab-acts-natively t
+	;;  org-edit-src-content-indentation 0
+	;;  org-adapt-indentation t)
+	;;
+	;;(setq org-image-actual-width 800)
 #+END_SRC
 
 #+RESULTS:
@@ -537,6 +539,7 @@ TODO: Create table with commands
 		  :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
 		  :unnarrowed t)))
 	  :config
+	  (org-roam-setup)
 	  (org-roam-db-autosync-mode))
 
 	(setq org-roam-dailies-capture-templates
@@ -838,25 +841,37 @@ Which-key is a helper utility for keychords (which key to press)
 ** PlantUML
 
 #+begin_src emacs-lisp
-(use-package plantuml-mode
-  :ensure t
-  :config
-  (setq plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
-  (setq org-plantuml-jar-path "/usr/share/java/plantuml/plantuml.jar")
-  (setq plantuml-default-exec-mode 'jar)
-  (setq plantuml-executable-path "/usr/bin/plantuml")
-  (setq plantuml-default-exec-mode 'executable)
+(with-system-type plantumlDir
+	(gnu/linux "/usr/share/java/plantuml/plantuml.jar")
+	(darwin "/todo")
+	(windows-nt "c:\\Program Files\\plantuml\\plantuml-mit-1.2024.6.jar")
+	(t "/todo"))
 
-  (add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
-  (add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
-  (add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
-  (setq plantuml-output-type "png"))
-  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
-  (with-eval-after-load 'ox-hugo
-    (add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
+(use-package plantuml-mode
+	:ensure t
+	:config
+	(setq plantuml-jar-path plantumlDir)
+	(setq org-plantuml-jar-path plantumlDir)
+	(setq plantuml-default-exec-mode 'jar)
+	(setq plantuml-executable-path "/usr/bin/plantuml")
+	(setq plantuml-default-exec-mode 'executable)
+
+	(add-to-list 'auto-mode-alist '("\\.plantuml\\'" . plantuml-mode))
+	(add-to-list 'auto-mode-alist '("\\.pu\\'" . plantuml-mode))
+	(add-to-list 'auto-mode-alist '("\\.puml\\'" . plantuml-mode))
+	(setq plantuml-output-type "png"))
+	(org-babel-do-load-languages 'org-babel-load-languages '((plantuml .t)))
+	(with-eval-after-load 'ox-hugo
+	(add-to-list 'org-hugo-special-block-type-properties '("mermaid" . (:raw t))))
 #+end_src
 
 #+RESULTS:
+| mermaid | :raw      | t |            |   |
+| audio   | :raw      | t |            |   |
+| katex   | :raw      | t |            |   |
+| mark    | :trim-pre | t | :trim-post | t |
+| tikzjax | :raw      | t |            |   |
+| video   | :raw      | t |            |   |
 
 ** Gherkin
 
@@ -954,6 +969,37 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 : webjump
 
 * Trying out
+
+** Copilot
+
+#+BEGIN_SRC emacs-lisp
+;;(add-hook 'prog-mode-hook 'ot-mode)
+;;(add-to-list 'copilot-major-mode-alist '("org"))
+;;(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+
+(use-package copilot
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :ensure t
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)
+              ("C-n" . 'copilot-next-completion)
+              ("C-p" . 'copilot-previous-completion))
+
+  :config
+  (add-to-list 'copilot-indentation-alist '(prog-mode 2))
+  (add-to-list 'copilot-indentation-alist '(org-mode 2))
+  (add-to-list 'copilot-indentation-alist '(text-mode 2))
+  (add-to-list 'copilot-indentation-alist '(closure-mode 2))
+  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode 2)))
+
+#+END_SRC
+
+#+RESULTS:
+: copilot-previous-completion
 
 ** Eat (terminal emulation)
 
