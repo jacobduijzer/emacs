@@ -52,6 +52,8 @@
 
 * Global Emacs Configuration
 
+This is my global Emacs configuration. Pay attention to the files, included in the init.el.
+
 ** Evil mode
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
 Note: To paste without copy (yank) selected text use P (shift P evil-paste-before), because default is evil-paste-after.
