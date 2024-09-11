@@ -52,7 +52,7 @@
 
 * Global Emacs Configuration
 
-This is my global Emacs configuration. Pay attention to the files, included in the init.el.
+This is my global Emacs configuration. Pay attention to the files, included in the init.el. The include files are: config.el
 
 ** Evil mode
 Evil is an extensible vi/vim layer for Emacs.  Because…let’s face it.  The Vim keybindings are just plain better.
